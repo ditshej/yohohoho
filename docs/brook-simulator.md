@@ -8,14 +8,14 @@ Ein Web-Tool das simuliert, wie sich Deck- und Trash-Grösse Zug für Zug verän
 
 ### Grundregeln
 - Deck: 50 Karten
-- Starting Hand: 5 Karten (vom Deck gezogen)
-- Life: Karten vom Deck beiseitegelegt (Anzahl abhängig vom Leader)
-- Pro Zug: 1 Karte ziehen (ausser Turn 1 going first)
+- Setup-Reihenfolge: Zuerst 5 Handkarten ziehen, dann Life-Karten einzeln vom Deck beiseitelegen (oberste Life = letzte vom Deck)
+- Pro Zug: 1 Karte ziehen + 2 DON!! hinzufügen
+- Ausnahme: Erster Spieler, Turn 1 — kein Draw, nur +1 DON!!
 - DON!! Deck: 10 DON!! Karten (separate Ressource zum Spielen von Karten)
 
 ### DON!! Kurve
-- Going First: Turn 1 +1 DON!!, danach +2 pro Zug, max 10
-- Going Second: Turn 1 +2 DON!!, danach +2 pro Zug, max 10
+- Going First: Turn 1 +1 DON!! (kein Draw), danach +2 pro Zug, max 10
+- Going Second: Turn 1 +2 DON!! + Draw, danach +2 pro Zug, max 10
 - Karten kosten DON!! zum Spielen (cost-Wert auf der Karte)
 
 ### Brook OP15-022 Leader (Green/Black)
@@ -106,7 +106,8 @@ Pro Zug:
      - trash_from_deck: deckSize -= X, trashSize += X
      - return_from_trash: trashSize -= X, deckSize += X
      - draw: deckSize -= X, handSize += X
-  5. End-of-Turn Check: deckSize <= 0 → Brook stirbt am Ende DIESES Zugs
+  5. End-of-Turn Check: deckSize <= 0 → Zug wird fertig gespielt, Brook stirbt am Ende DIESES Zugs
+     (Andere Leader sterben sofort bei Deck = 0, Brook spielt den Zug noch zu Ende)
 ```
 
 ## Services

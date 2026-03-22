@@ -1,8 +1,16 @@
 schema: spec-driven
 
 context: |
-  Tech stack: PHP 8.5, Laravel 12, Pest 4, Pint, Vite
-  Coding standards: Spatie PHP/Laravel guidelines (see docs/spatie-guidelines.md)
+  ## Project
+  Brook OP15 Deck Simulator — a web tool that simulates how deck and trash
+  sizes change turn by turn when playing the Brook OP15 Leader in the One Piece TCG.
+  See docs/brook-simulator.md for full project brief.
+
+  ## Tech Stack
+  PHP 8.5, Laravel 12, Pest 4, Pint, Blade + Tailwind 4 + Alpine.js, Vite, SQLite
+
+  ## Coding Standards
+  Spatie PHP/Laravel guidelines (see docs/spatie-guidelines.md)
   Key conventions:
     - Happy path last, avoid else, use early returns
     - Only up() in migrations, never down()
@@ -13,8 +21,14 @@ context: |
     - kebab-case URLs, camelCase route names
     - Self-documenting code over comments
 
+  ## Development Approach
+  - TDD: always write tests FIRST, then implement
+  - Conventional Commits
+  - Single-user tool, no authentication
+
 rules:
   tasks:
     - Break tasks into chunks of max 2 hours
+    - Tests must be listed BEFORE implementation tasks
   proposal:
     - Always include a "Non-goals" section
