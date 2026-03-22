@@ -16,8 +16,15 @@ composer require --dev laravel/boost laravel/pail laravel/pint pestphp/pest pest
 ## 2. OpenSpec einrichten
 
 ```bash
-# OpenSpec-Ordnerstruktur anlegen (via Claude Code /openspec-propose oder manuell)
+npm install -g @fission-ai/openspec
+openspec init
 ```
+
+Das erstellt:
+- `openspec/config.yaml` — Projekt-Config
+- `openspec/specs/` — Langlebige Projekt-Specs (werden durch Changes befüllt)
+- `openspec/changes/` — Kurzlebige Arbeitspakete
+- `.claude/skills/openspec-*` — Skills für Claude Code Agents
 
 `openspec/config.yaml` mit Projekt-Context befüllen:
 
@@ -25,8 +32,14 @@ composer require --dev laravel/boost laravel/pail laravel/pint pestphp/pest pest
 schema: spec-driven
 
 context: |
-  Tech stack: PHP 8.x, Laravel 12, Pest 4, Pint, Vite
-  Coding standards: Spatie PHP/Laravel guidelines (see docs/spatie-guidelines.md)
+  ## Project
+  <Projekt-Beschreibung>
+
+  ## Tech Stack
+  PHP 8.x, Laravel 12, Pest 4, Pint, Blade + Tailwind 4 + Alpine.js, Vite, SQLite
+
+  ## Coding Standards
+  Spatie PHP/Laravel guidelines (see docs/spatie-guidelines.md)
   Key conventions:
     - Happy path last, avoid else, use early returns
     - Only up() in migrations, never down()
@@ -36,6 +49,30 @@ context: |
     - Typed properties over docblocks, constructor property promotion
     - kebab-case URLs, camelCase route names
     - Self-documenting code over comments
+
+  ## Development Approach
+  - TDD: always write tests FIRST, then implement
+  - Conventional Commits
+
+rules:
+  tasks:
+    - Break tasks into chunks of max 2 hours
+    - Tests must be listed BEFORE implementation tasks
+  proposal:
+    - Always include a "Non-goals" section
+```
+
+### OpenSpec Workflow
+
+Jeder Change durchläuft 4 Artifacts:
+
+```
+/openspec-propose     → proposal.md (WARUM)
+                      → specs/*.md  (WAS — Requirements mit WHEN/THEN Scenarios)
+                      → design.md   (WIE — Architektur-Entscheide)
+                      → tasks.md    (TODO — Checkboxen, Tests vor Code)
+/openspec-apply-change → Implementieren (Tasks abarbeiten)
+/openspec-archive-change → Abschliessen, Specs in Haupt-Specs syncen
 ```
 
 ## 3. Spatie Guidelines
