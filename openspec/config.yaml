@@ -1,20 +1,20 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  Tech stack: PHP 8.5, Laravel 12, Pest 4, Pint, Vite
+  Coding standards: Spatie PHP/Laravel guidelines (see docs/spatie-guidelines.md)
+  Key conventions:
+    - Happy path last, avoid else, use early returns
+    - Only up() in migrations, never down()
+    - Plural controller names (PostsController), CRUD methods only
+    - Array notation for validation rules
+    - Use config() helper, never env() outside config files
+    - Typed properties over docblocks, constructor property promotion
+    - kebab-case URLs, camelCase route names
+    - Self-documenting code over comments
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+rules:
+  tasks:
+    - Break tasks into chunks of max 2 hours
+  proposal:
+    - Always include a "Non-goals" section

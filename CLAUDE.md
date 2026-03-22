@@ -32,6 +32,16 @@ This project has domain-specific skills available. You MUST activate the relevan
 - Use descriptive names for variables and methods. For example, `isRegisteredForDiscounts`, not `discount()`.
 - Check for existing components to reuse before writing a new one.
 
+## Git Commits
+
+- Use [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/).
+- Format: `<type>[optional scope]: <description>`
+- Types: `feat` (new feature), `fix` (bug fix), `docs` (documentation), `style` (formatting), `refactor` (restructuring), `perf` (performance), `test` (tests), `build` (build system), `ci` (CI config), `chore` (maintenance).
+- Scope is optional, in parentheses: `feat(auth): add login endpoint`
+- Breaking changes: append `!` before colon: `feat!: remove legacy API`
+- Description: imperative, lowercase, no period at end.
+- Body and footers are optional; use them for context when the description alone is not enough.
+
 ## Verification Scripts
 
 - Do not create verification scripts or tinker when tests cover that functionality and prove they work. Unit and feature tests are more important.
