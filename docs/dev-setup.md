@@ -56,7 +56,16 @@ In `CLAUDE.md` unter `## Git Commits` die Convention festlegen:
 
 Referenz: [conventionalcommits.org/en/v1.0.0](https://www.conventionalcommits.org/en/v1.0.0/)
 
-## 5. .gitignore ergänzen
+## 5. TDD (Test-Driven Development)
+
+In `CLAUDE.md` unter `## Testing (TDD)` festlegen:
+
+- Tests ZUERST schreiben, dann den Code implementieren
+- Pest 4 für alle Tests, bevorzugt Feature Tests
+- Umfassende Test-Coverage anstreben — kein Feature ohne Tests
+- `php artisan test --compact` nach jeder Änderung
+
+## 6. .gitignore ergänzen
 
 Folgendes hinzufügen:
 
@@ -64,7 +73,7 @@ Folgendes hinzufügen:
 .claude/settings.local.json
 ```
 
-## 6. Claude Code Agents (global, einmalig)
+## 7. Claude Code Agents (global, einmalig)
 
 Zwei Agents in `~/.claude/agents/` einrichten:
 
@@ -73,7 +82,7 @@ Zwei Agents in `~/.claude/agents/` einrichten:
 
 Quelle: [freekmurze/dotfiles/config/claude/agents/](https://github.com/freekmurze/dotfiles/tree/main/config/claude/agents)
 
-## 7. Git-Delta (global, einmalig)
+## 8. Git-Delta (global, einmalig)
 
 ```bash
 brew install git-delta
@@ -96,7 +105,7 @@ In `~/.gitconfig` hinzufügen:
     colorMoved = default
 ```
 
-## 8. Optional: Weitere CLI-Tools
+## 9. Optional: Weitere CLI-Tools
 
 ```bash
 brew install eza bat zoxide fzf fnm
@@ -108,7 +117,7 @@ brew install eza bat zoxide fzf fnm
 - `fzf` — Fuzzy-Finder
 - `fnm` — Schneller Node.js Version Manager
 
-## 9. Shell Aliases
+## 10. Shell Aliases
 
 Eigene Datei `~/.aliases` anlegen und in `~/.zshrc` sourcen:
 
@@ -147,7 +156,7 @@ alias cy="claude --dangerously-skip-permissions"
 alias nah="git reset --hard && git clean -df"
 ```
 
-## 10. Claude Code Deny Rules (global)
+## 11. Claude Code Deny Rules (global)
 
 In `~/.claude/settings.json` Deny Rules hinzufügen. Diese greifen auch im Bypass-Modus (`--dangerously-skip-permissions`) und blocken destruktive Befehle:
 
