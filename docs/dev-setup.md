@@ -108,15 +108,23 @@ brew install eza bat zoxide fzf fnm
 - `fzf` — Fuzzy-Finder
 - `fnm` — Schneller Node.js Version Manager
 
-## 9. Optional: Shell Aliases
+## 9. Shell Aliases
+
+Eigene Datei `~/.aliases` anlegen und in `~/.zshrc` sourcen:
 
 ```bash
-alias a="php artisan"
-alias mfs="php artisan migrate:fresh --seed"
+# In ~/.zshrc einfügen:
+[ -f ~/.aliases ] && source ~/.aliases
 ```
 
-Pest-Funktion:
+Inhalt von `~/.aliases`:
+
 ```bash
+# Laravel / PHP
+alias a="php artisan"
+alias mfs="php artisan migrate:fresh --seed"
+
+# Pest (auto-detect pest vs phpunit)
 function p() {
     if [ -f vendor/bin/pest ]; then
         vendor/bin/pest "$@"
@@ -124,4 +132,45 @@ function p() {
         vendor/bin/phpunit "$@"
     fi
 }
+
+# Composer
+alias ci="composer install"
+alias cu="composer update"
+alias cr="composer require"
+alias cda="composer dump-autoload"
+
+# Claude Code
+alias c="claude"
+alias cy="claude --dangerously-skip-permissions"
+
+# Git
+alias nah="git reset --hard && git clean -df"
 ```
+
+## 10. Claude Code Deny Rules (global)
+
+In `~/.claude/settings.json` Deny Rules hinzufügen. Diese greifen auch im Bypass-Modus (`--dangerously-skip-permissions`) und blocken destruktive Befehle:
+
+```json
+{
+  "permissions": {
+    "deny": [
+      "Bash(git push --force*)",
+      "Bash(git push * --force*)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean -f*)",
+      "Bash(git clean -df*)",
+      "Bash(git checkout -- .)",
+      "Bash(rm -rf *)",
+      "Bash(rm -rf /*)",
+      "Bash(*db:wipe*)",
+      "Bash(*migrate:fresh*--env=prod*)",
+      "Bash(*migrate:fresh*--env=production*)",
+      "Bash(*DROP DATABASE*)",
+      "Bash(*DROP TABLE*)"
+    ]
+  }
+}
+```
+
+Referenz: [Safety Nets for Claude Code](https://cbox.dk/blog/safety-nets-for-claude-code-skip-permissions)
