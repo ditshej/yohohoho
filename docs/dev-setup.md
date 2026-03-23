@@ -125,13 +125,17 @@ openspec new change "<change-name>"
 
 # 3. Implementation (TDD)
 # /opsx:apply — Tasks abarbeiten
+
+# 4. Code Review via laravel-simplifier Agent
+# → prüft: Laravel Best Practices, Code-Klarheit, Test-Qualität, Konsistenz
+# → Findings fixen, dann committen
 # → Commit(s): "feat: ...", "test: ...", etc.
 
-# 4. Archivierung
+# 5. Archivierung
 # /opsx:archive — Change abschliessen, Specs mergen
 # → Commit: "docs: archive <change-name> change"
 
-# 5. Merge nach main (kein Squash!)
+# 6. Merge nach main (kein Squash!)
 git checkout main
 git merge feat/<change-name>
 git push
@@ -142,6 +146,7 @@ git branch -d feat/<change-name>
 
 ```
 * docs: archive import-cards-command change
+* refactor: apply simplifier findings
 * feat: add cards:import artisan command
 * docs: add openspec change import-cards-command
 * docs: archive pack-and-card-models change
@@ -149,7 +154,7 @@ git branch -d feat/<change-name>
 * docs: add openspec change pack-and-card-models
 ```
 
-Jedes Feature hat 3 Commits: Planung → Implementation → Archivierung.
+Jedes Feature hat 3-4 Commits: Planung → Implementation → Review (optional) → Archivierung.
 
 ## 7. .gitignore ergänzen
 
