@@ -126,10 +126,12 @@ openspec new change "<change-name>"
 # 3. Implementation (TDD)
 # /opsx:apply — Tasks abarbeiten
 
-# 4. Code Review via laravel-simplifier Agent
-# → prüft: Laravel Best Practices, Code-Klarheit, Test-Qualität, Konsistenz
-# → Findings fixen, dann committen
-# → Commit(s): "feat: ...", "test: ...", etc.
+# 4. Code Review
+# a) laravel-simplifier Agent — automatisches Review
+# b) Findings fixen, dann committen
+# c) User reviewt selbst (PhpStorm, GitHub PR, oder git diff main...HEAD)
+# → Erst nach User-OK weitermachen!
+# → Commit(s): "feat: ...", "refactor: ...", etc.
 
 # 5. Archivierung
 # /opsx:archive — Change abschliessen, Specs mergen
