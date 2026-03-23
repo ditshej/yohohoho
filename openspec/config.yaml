@@ -30,5 +30,7 @@ rules:
   tasks:
     - Break tasks into chunks of max 2 hours
     - Tests must be listed BEFORE implementation tasks
+    - Maximum 15 tasks per change — split into smaller changes if more
   proposal:
     - Always include a "Non-goals" section
+    - Keep scope small — one concern per change, not an entire feature layer
