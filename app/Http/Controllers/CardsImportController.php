@@ -37,7 +37,7 @@ class CardsImportController extends Controller
         $summary = $service->import(collect($decoded), $colorFilter);
 
         return redirect()
-            ->route('cardsImport.create')
+            ->route('cards.index')
             ->with('success', "Import complete: {$summary['imported']} imported, {$summary['skipped']} skipped.");
     }
 }

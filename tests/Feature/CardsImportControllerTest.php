@@ -51,7 +51,7 @@ it('imports cards from uploaded json file', function () {
     );
 
     $this->post('/cards-import', ['file' => $file])
-        ->assertRedirect()
+        ->assertRedirect(route('cards.index'))
         ->assertSessionHas('success');
 
     expect(Card::count())->toBe(2);
