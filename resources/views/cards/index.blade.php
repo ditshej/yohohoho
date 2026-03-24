@@ -62,7 +62,7 @@
                 @foreach($cards as $card)
                     <tr class="border-b border-gray-100">
                         <td class="py-2 pr-4 font-mono">{{ $card->card_id }}</td>
-                        <td class="py-2 pr-4">{{ $card->name }}</td>
+                        <td class="py-2 pr-4"><a href="{{ route('cards.show', $card) }}" class="text-blue-600 hover:underline">{{ $card->name }}</a></td>
                         <td class="py-2 pr-4">{{ $card->category->value }}</td>
                         <td class="py-2 pr-4">{{ $card->rarity->value }}</td>
                         <td class="py-2 pr-4">{{ $card->colors->pluck('value')->join(', ') }}</td>
