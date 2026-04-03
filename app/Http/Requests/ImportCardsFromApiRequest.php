@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Http\Requests;
+
+use App\Enums\CardColor;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+class ImportCardsFromApiRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'url' => ['required', 'url'],
+            'colors' => ['nullable', 'array'],
+            'colors.*' => ['string', Rule::in(array_column(CardColor::cases(), 'value'))],
+        ];
+    }
+}

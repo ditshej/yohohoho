@@ -13,3 +13,4 @@ Route::get('cards/{card}', [CardsController::class, 'show'])->name('cards.show')
 
 Route::get('cards-import/create', [CardsImportController::class, 'create'])->name('cardsImport.create');
 Route::post('cards-import', [CardsImportController::class, 'store'])->name('cardsImport.store');
+Route::post('cards-import/api', [CardsImportController::class, 'storeFromApi'])->name('cardsImport.storeFromApi');
