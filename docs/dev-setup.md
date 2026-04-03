@@ -75,10 +75,10 @@ Jeder Change durchläuft 4 Artifacts:
 /openspec-archive-change → Abschliessen, Specs in Haupt-Specs syncen
 ```
 
-> **Regel 1:** Nach `/opsx:propose` sofort committen — bevor implementiert wird:
-> `git add openspec/ && git commit -m "docs: add openspec change <name>"`
+> **Regel 1:** Jedes neue Feature startet IMMER mit `/opsx:propose` — nie direkt implementieren, auch nicht im Plan-Mode.
 
-> **Regel 2:** Immer zuerst `/opsx:propose` ausführen — auch wenn ein Plan bereits existiert. Nie direkt mit `/opsx:apply` starten.
+> **Regel 2:** Nach `/opsx:propose` sofort committen — bevor implementiert wird:
+> `git add openspec/ && git commit -m "docs: add openspec change <name>"`
 
 ## 3. Spatie Guidelines
 

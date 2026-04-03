@@ -261,6 +261,8 @@ protected function isAccessible(User $user, ?string $path = null): bool
 
 ## Git + OpenSpec Feature Branch Flow
 
+**Regel:** Jedes neue Feature oder jede grössere Änderung startet IMMER mit `/opsx:propose` — nie direkt implementieren, auch nicht im Plan-Mode. Erst nach dem Propose-Commit darf mit `/opsx:apply` begonnen werden.
+
 Jede OpenSpec-Change bekommt einen eigenen Feature-Branch. Kein Squash-Merge — die volle History bleibt auf `main` erhalten.
 
 ### Branch-Namenskonvention
