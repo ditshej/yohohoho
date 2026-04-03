@@ -75,6 +75,11 @@ Jeder Change durchläuft 4 Artifacts:
 /openspec-archive-change → Abschliessen, Specs in Haupt-Specs syncen
 ```
 
+> **Regel 1:** Nach `/opsx:propose` sofort committen — bevor implementiert wird:
+> `git add openspec/ && git commit -m "docs: add openspec change <name>"`
+
+> **Regel 2:** Immer zuerst `/opsx:propose` ausführen — auch wenn ein Plan bereits existiert. Nie direkt mit `/opsx:apply` starten.
+
 ## 3. Spatie Guidelines
 
 Kopiere `docs/spatie-guidelines.md` ins neue Projekt. Diese Datei enthält die Spatie PHP/Laravel Coding Standards, optimiert für AI Code Assistants.
