@@ -11,7 +11,7 @@
         <div class="max-w-5xl mx-auto px-4 py-3 flex items-center gap-6">
             <a href="/" class="font-bold text-lg">Brook Simulator</a>
             <a href="{{ route('cards.index') }}" class="text-sm text-gray-600 hover:text-gray-900">Cards</a>
-            <a href="{{ route('cardsImport.create') }}" class="text-sm text-gray-600 hover:text-gray-900">Import Cards</a>
+            <a href="{{ route('cards-import.create') }}" class="text-sm text-gray-600 hover:text-gray-900">Import Cards</a>
         </div>
     </nav>
 

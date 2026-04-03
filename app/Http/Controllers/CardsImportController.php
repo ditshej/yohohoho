@@ -28,15 +28,7 @@ class CardsImportController extends Controller
             return back()->withErrors(['file' => 'The file does not contain valid card data.']);
         }
 
-        $colorFilter = null;
-        if ($request->filled('colors')) {
-            $colorFilter = array_map(
-                fn (string $color) => CardColor::from($color),
-                $request->input('colors'),
-            );
-        }
-
-        $summary = $service->import(collect($decoded), $colorFilter);
+        $summary = $service->import(collect($decoded), $this->resolveColorFilter($request));
 
         return redirect()
             ->route('cards.index')
@@ -53,22 +45,27 @@ class CardsImportController extends Controller
 
         $cards = $response->json();
 
-        if (! is_array($cards) || array_is_list($cards) === false) {
+        if (! is_array($cards) || ! array_is_list($cards)) {
             return back()->withErrors(['url' => 'The API did not return a valid list of cards.']);
         }
 
-        $colorFilter = null;
-        if ($request->filled('colors')) {
-            $colorFilter = array_map(
-                fn (string $color) => CardColor::from($color),
-                $request->input('colors'),
-            );
-        }
-
-        $summary = $service->import(collect($cards), $colorFilter);
+        $summary = $service->import(collect($cards), $this->resolveColorFilter($request));
 
         return redirect()
             ->route('cards.index')
             ->with('success', "Import complete: {$summary['imported']} imported, {$summary['skipped']} skipped.");
+    }
+
+    /** @return array<int, CardColor>|null */
+    private function resolveColorFilter(ImportCardsFromApiRequest|ImportCardsRequest $request): ?array
+    {
+        if (! $request->filled('colors')) {
+            return null;
+        }
+
+        return array_map(
+            fn (string $color) => CardColor::from($color),
+            $request->input('colors'),
+        );
     }
 }

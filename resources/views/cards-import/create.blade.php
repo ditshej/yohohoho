@@ -5,7 +5,7 @@
 @section('content')
     <h1 class="text-2xl font-bold mb-6">Import Cards</h1>
 
-    <div x-data="{ tab: 'file' }" class="max-w-lg">
+    <div x-data="{ tab: '{{ $errors->has('url') ? 'api' : 'file' }}' }" class="max-w-lg">
 
         {{-- Tab Navigation --}}
         <div class="flex border-b border-gray-200 mb-6">
@@ -29,7 +29,7 @@
 
         {{-- File Upload Tab --}}
         <div x-show="tab === 'file'">
-            <form action="{{ route('cardsImport.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+            <form action="{{ route('cards-import.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                 @csrf
 
                 <div>
@@ -63,7 +63,7 @@
 
         {{-- API Import Tab --}}
         <div x-show="tab === 'api'">
-            <form action="{{ route('cardsImport.storeFromApi') }}" method="POST" class="space-y-6">
+            <form action="{{ route('cards-import.storeFromApi') }}" method="POST" class="space-y-6">
                 @csrf
 
                 <div>
