@@ -1,40 +1,40 @@
 ## Context
 
-Der bestehende Import-Flow läuft über `CardsImportController` → `CardImportService`. Der Service erwartet ein Array von Karten-Daten und ist API-agnostisch — er kann direkt wiederverwendet werden. Der neue Flow ersetzt nur die Datenquelle (HTTP statt Upload).
+The existing import flow runs through `CardsImportController` → `CardImportService`. The service expects an array of card data and is API-agnostic — it can be reused directly. The new flow only replaces the data source (HTTP instead of upload).
 
 ## Goals / Non-Goals
 
 **Goals:**
-- HTTP-Abruf von `https://op-cards.ditshej.ch/api/cards` per Laravel HTTP Client
-- Wiederverwendung von `CardImportService` ohne Änderungen
-- Tab-basierte UI im bestehenden Formular (File Upload | API Import)
+- HTTP fetch from `https://op-cards.ditshej.ch/api/cards` via Laravel HTTP Client
+- Reuse `CardImportService` without changes
+- Tab-based UI in the existing form (File Upload | API Import)
 
 **Non-Goals:**
-- Cron-basierte Synchronisation
-- API-Authentifizierung
-- Mehrere konfigurierbare API-Endpoints
+- Cron-based synchronization
+- API authentication
+- Multiple configurable API endpoints
 
 ## Decisions
 
-**Laravel HTTP Client statt cURL/Guzzle direkt**
-Laravel's `Http::get()` ist bereits verfügbar, gut testbar (fake/mock), und fügt keine neue Dependency hinzu.
+**Laravel HTTP Client instead of cURL/Guzzle directly**
+Laravel's `Http::get()` is already available, well-testable (fake/mock), and adds no new dependency.
 
-**URL vorausgefüllt, aber editierbar**
-Die API-URL wird als Default-Wert im Formular gesetzt, nicht hardcoded im Backend. Das erlaubt Tests gegen andere Endpoints ohne Code-Änderung.
+**URL pre-filled but editable**
+The API URL is set as a default value in the form, not hardcoded in the backend. This allows testing against other endpoints without code changes.
 
-**Neue Route + neue Form Request, neue Controller-Action**
-`storeFromApi()` bleibt getrennt von `store()` (File-Upload). Keine Vermischung der zwei Flows — einfachere Tests, klare Verantwortlichkeiten.
+**New route + new Form Request, new controller action**
+`storeFromApi()` stays separate from `store()` (file upload). No mixing of the two flows — simpler tests, clear responsibilities.
 
-**Keine Änderung am CardImportService**
-Der Service nimmt bereits ein Array entgegen. Das HTTP-Response-Array wird direkt übergeben.
+**No changes to CardImportService**
+The service already accepts an array. The HTTP response array is passed directly.
 
 ## Risks / Trade-offs
 
-**[Risiko] API nicht erreichbar zur Laufzeit** → HTTP-Timeout setzen (5s), Fehler als Validation-Error dem User anzeigen (wie beim File-Upload).
+**[Risk] API unreachable at runtime** → Set HTTP timeout (5s), show error to user as validation error (same as file upload).
 
-**[Risiko] API-Format ändert sich** → Da Format identisch zum bestehenden Import ist, tritt der Fehler erst bei der CardImportService-Verarbeitung auf — dort bereits behandelt.
+**[Risk] API format changes** → Since the format is identical to the existing import, the error would only occur during CardImportService processing — already handled there.
 
 ## Open Questions
 
-- Soll der Farbfilter auch beim API-Import als Checkbox-Liste dargestellt werden (wie beim File-Upload) oder als einfaches Textfeld?
-  → Annahme: gleiche Checkbox-Liste wie beim File-Upload.
+- Should the color filter also be presented as a checkbox list for API import (like file upload) or as a simple text field?
+  → Assumption: same checkbox list as file upload.

@@ -1,27 +1,27 @@
 ## ADDED Requirements
 
-### Requirement: Karten direkt von API-URL abrufen
-Das System SHALL Karten per HTTP GET von einer konfigurierbaren URL abrufen und in die Datenbank importieren.
+### Requirement: Fetch cards directly from API URL
+The system SHALL fetch cards via HTTP GET from a configurable URL and import them into the database.
 
-#### Scenario: Erfolgreicher API-Import
-- **WHEN** der User eine gültige API-URL eingibt und das Formular abschickt
-- **THEN** ruft das System die URL ab, importiert die Karten und zeigt eine Erfolgsmeldung mit Anzahl importierter Karten
+#### Scenario: Successful API import
+- **WHEN** the user enters a valid API URL and submits the form
+- **THEN** the system fetches the URL, imports the cards, and shows a success message with the number of imported cards
 
-#### Scenario: API nicht erreichbar
-- **WHEN** die API-URL nicht erreichbar ist oder ein Timeout auftritt
-- **THEN** zeigt das System eine Fehlermeldung ohne Karten zu importieren
+#### Scenario: API unreachable
+- **WHEN** the API URL is unreachable or a timeout occurs
+- **THEN** the system shows an error message without importing any cards
 
-#### Scenario: API gibt kein valides JSON zurück
-- **WHEN** die API-URL valides JSON zurückgibt, das aber kein Array von Karten ist
-- **THEN** zeigt das System eine Fehlermeldung ohne Karten zu importieren
+#### Scenario: API returns invalid JSON
+- **WHEN** the API URL returns valid JSON that is not an array of cards
+- **THEN** the system shows an error message without importing any cards
 
-### Requirement: Optionaler Farbfilter beim API-Import
-Das System SHALL beim API-Import denselben Farbfilter wie beim File-Upload anbieten.
+### Requirement: Optional color filter for API import
+The system SHALL offer the same color filter for API import as for file upload.
 
-#### Scenario: Import mit Farbfilter
-- **WHEN** der User einen oder mehrere Farben auswählt und den API-Import startet
-- **THEN** importiert das System nur Karten mit den ausgewählten Farben
+#### Scenario: Import with color filter
+- **WHEN** the user selects one or more colors and starts the API import
+- **THEN** the system imports only cards with the selected colors
 
-#### Scenario: Import ohne Farbfilter
-- **WHEN** der User keine Farbe auswählt
-- **THEN** importiert das System alle Karten der API-Antwort
+#### Scenario: Import without color filter
+- **WHEN** the user selects no color
+- **THEN** the system imports all cards from the API response

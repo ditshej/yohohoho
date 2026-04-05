@@ -1,33 +1,33 @@
 ## Why
 
-Der bestehende Karten-Import erfordert das manuelle Herunterladen einer JSON-Datei von der One Piece Cards API und das anschliessende Hochladen ins Formular. Da es jetzt eine eigene API unter `https://op-cards.ditshej.ch/` gibt, soll der Import direkt von dort abrufen — ohne Zwischenschritt.
+The existing card import requires manually downloading a JSON file from the One Piece Cards API and then uploading it via the form. Since there is now a dedicated API at `https://op-cards.ditshej.ch/`, the import should fetch directly from there — without the intermediate step.
 
 ## What Changes
 
-- Neuer Tab "API Import" im bestehenden Import-Formular neben dem bestehenden "File Upload"-Tab
-- HTTP-Abruf der Karten direkt von `https://op-cards.ditshej.ch/api/cards` (URL vorausgefüllt, änderbar)
-- Optionaler Farbfilter (wie beim File-Upload) bleibt erhalten
-- Bestehender File-Upload-Tab bleibt unverändert
+- New tab "API Import" in the existing import form next to the existing "File Upload" tab
+- HTTP fetch of cards directly from `https://op-cards.ditshej.ch/api/cards` (URL pre-filled, editable)
+- Optional color filter (same as file upload) is retained
+- Existing File Upload tab remains unchanged
 
 ## Capabilities
 
 ### New Capabilities
-- `api-import`: Karten per HTTP-Request von einer konfigurierbaren URL abrufen und importieren
+- `api-import`: Fetch cards via HTTP request from a configurable URL and import them
 
 ### Modified Capabilities
-- `card-import`: Import-Formular erhält zweiten Tab für API-Import (UI-Erweiterung, kein Bruch der bestehenden Logik)
+- `card-import`: Import form gets a second tab for API import (UI extension, no break to existing logic)
 
 ## Non-goals
 
-- Automatische/geplante Synchronisation (kein Cron-Job)
-- Authentifizierung gegenüber der API
-- Unterstützung mehrerer API-Endpoints gleichzeitig
-- Änderungen am Datenmodell (Card, CardEffect)
+- Automated/scheduled synchronization (no cron job)
+- Authentication against the API
+- Support for multiple API endpoints simultaneously
+- Changes to the data model (Card, CardEffect)
 
 ## Impact
 
-- `CardsImportController` — neue `storeFromApi`-Action
-- `app/Http/Requests/` — neue Form Request für API-Import
-- `resources/views/cards-import/` — Tab-Erweiterung im Formular
-- `routes/web.php` — neue Route `POST /cards-import/api`
-- `CardImportService` — kann unverändert wiederverwendet werden
+- `CardsImportController` — new `storeFromApi` action
+- `app/Http/Requests/` — new Form Request for API import
+- `resources/views/cards-import/` — tab extension in the form
+- `routes/web.php` — new route `POST /cards-import/api`
+- `CardImportService` — can be reused unchanged

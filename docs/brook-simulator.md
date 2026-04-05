@@ -2,25 +2,25 @@
 
 ## Vision
 
-Ein Web-Tool das simuliert, wie sich Deck- und Trash-Grösse Zug für Zug verändern, wenn man den Brook OP15 Leader im One Piece TCG spielt. Ziel: Herausfinden in welchem Zug Brook "stirbt" — unter Berücksichtigung von Brook's Trash-Effekt, DON!!-Kosten und Karten mit Trash-Mechaniken.
+A web tool that simulates how deck and trash size change turn by turn when playing the Brook OP15 Leader in the One Piece TCG. Goal: find out which turn Brook "dies" — taking into account Brook's trash effect, DON!! costs, and cards with trash mechanics.
 
-## Domain: One Piece TCG Regeln
+## Domain: One Piece TCG Rules
 
-### Grundregeln
-- Deck: 50 Karten
-- Setup-Reihenfolge: Zuerst 5 Handkarten ziehen, dann Life-Karten einzeln vom Deck beiseitelegen (oberste Life = letzte vom Deck)
-- Pro Zug: 1 Karte ziehen + 2 DON!! hinzufügen
-- Ausnahme: Erster Spieler, Turn 1 — kein Draw, nur +1 DON!!
-- DON!! Deck: 10 DON!! Karten (separate Ressource zum Spielen von Karten)
+### Basic Rules
+- Deck: 50 cards
+- Setup order: First draw 5 hand cards, then set aside Life cards one by one from the deck (top Life = last from deck)
+- Per turn: draw 1 card + add 2 DON!!
+- Exception: First player, Turn 1 — no draw, only +1 DON!!
+- DON!! Deck: 10 DON!! cards (separate resource for playing cards)
 
-### DON!! Kurve
-- Going First: Turn 1 +1 DON!! (kein Draw), danach +2 pro Zug, max 10
-- Going Second: Turn 1 +2 DON!! + Draw, danach +2 pro Zug, max 10
-- Karten kosten DON!! zum Spielen (cost-Wert auf der Karte)
+### DON!! Curve
+- Going First: Turn 1 +1 DON!! (no draw), then +2 per turn, max 10
+- Going Second: Turn 1 +2 DON!! + Draw, then +2 per turn, max 10
+- Cards cost DON!! to play (cost value on the card)
 
 ### Brook OP15-022 Leader (Green/Black)
 - 5000 Power, 4 Life, Straw Hat Crew
-- Effekt-Text:
+- Effect text:
   > Under the rules of this game, you do not lose when your deck has 0 cards. You lose at the end of the turn in which your deck becomes 0 cards.
   > [Activate: Main] [Once Per Turn] Trash 4 cards from the top of your deck. Then, if your deck has 0 cards, set up to 1 of your Characters as active.
 
@@ -31,31 +31,31 @@ Ein Web-Tool das simuliert, wie sich Deck- und Trash-Grösse Zug für Zug verän
 - life: 4
 - donAvailable: 0
 
-### Trash-Mechaniken
-Karten können zusätzlich zum Brook-Effekt Karten bewegen:
-- **Deck → Trash** (trash_from_deck): beschleunigt den Countdown
-- **Trash → Deck** (return_from_trash): verlangsamt den Countdown
-- **Deck → Hand** (draw): beschleunigt den Countdown leicht
+### Trash Mechanics
+Cards can move cards in addition to the Brook effect:
+- **Deck → Trash** (trash_from_deck): speeds up the countdown
+- **Trash → Deck** (return_from_trash): slows down the countdown
+- **Deck → Hand** (draw): slightly speeds up the countdown
 
 ## Non-Goals
 
-- Kein generischer Simulator für andere Leader
-- Keine Gegner-Simulation / Kampf
-- Keine Authentication / Multi-User
-- Kein individuelles Karten-Tracking (welche spezifische Karte wo liegt) — nur Anzahlen
+- No generic simulator for other leaders
+- No opponent simulation / combat
+- No authentication / multi-user
+- No individual card tracking (which specific card is where) — only counts
 
-## Architektur-Entscheide
+## Architecture Decisions
 
-1. **Zähler-basierte Simulation** — Wir tracken `deckSize`, `trashSize`, `handSize`, `donAvailable`, nicht welche konkreten Karten wo sind. Der User definiert was pro Zug passiert, daher kein Zufall nötig.
-2. **DON!!-Tracking** — Karten können nur gespielt werden wenn genug DON!! vorhanden. Validierung im Turn Planner.
-3. **CardEffect als separates Konzept** — Simulation-relevante Effekte werden als strukturierte Daten gespeichert, nicht zur Laufzeit aus dem Effekttext geparst.
-4. **TDD** — Tests zuerst schreiben, dann implementieren. Umfassende Test-Coverage.
-5. **Kartendaten manuell** — Karten werden manuell erfasst. Eine eigene OPTCG API wird als separates Projekt gebaut; dieses Projekt wird so architected, dass es diese API später konsumieren kann (CardImportService mit austauschbarer Datenquelle).
-6. **Alpine.js** für Interaktivität (Deck Builder, Turn Planner).
-7. **SQLite** — Single-User-Tool, keine Concurrency-Anforderungen.
-8. **Kein Auth** — Single-User-Tool.
+1. **Counter-based simulation** — We track `deckSize`, `trashSize`, `handSize`, `donAvailable`, not which specific cards are where. The user defines what happens per turn, so no randomness needed.
+2. **DON!! tracking** — Cards can only be played if enough DON!! is available. Validation in the Turn Planner.
+3. **CardEffect as a separate concept** — Simulation-relevant effects are stored as structured data, not parsed from the effect text at runtime.
+4. **TDD** — Write tests first, then implement. Comprehensive test coverage.
+5. **Card data manual** — Cards are entered manually. A dedicated OPTCG API will be built as a separate project; this project is architected so it can consume that API later (CardImportService with swappable data source).
+6. **Alpine.js** for interactivity (Deck Builder, Turn Planner).
+7. **SQLite** — Single-user tool, no concurrency requirements.
+8. **No Auth** — Single-user tool.
 
-## Datenmodell
+## Data Model
 
 ### Card
 ```
@@ -65,7 +65,7 @@ cards: id, card_id (unique, "OP15-022"), pack_id, name, rarity, category,
 ```
 Enums: `CardCategory` (Leader, Character, Event, Stage), `CardColor` (Red, Green, Blue, Purple, Black, Yellow), `CardRarity`
 
-### CardEffect (simulation-relevante Effekte einer Karte)
+### CardEffect (simulation-relevant effects of a card)
 ```
 card_effects: id, card_id (FK), effect_type, amount (int), condition (text nullable), timestamps
 ```
@@ -87,67 +87,67 @@ unique index [deck_id, card_id]
 simulations: id, deck_id (FK), name (nullable), going_first (bool), results (json), timestamps
 ```
 
-### SimulationTurnAction (Play-Plan)
+### SimulationTurnAction (Play Plan)
 ```
 simulation_turn_actions: id, simulation_id (FK), turn_number (int),
                          action_type, card_id (FK nullable), sort_order (int), timestamps
 ```
 Enum: `ActionType` (PlayCard, ActivateEffect, BrookTrash)
 
-## Kern-Logik: SimulationEngine
+## Core Logic: SimulationEngine
 
 ```
-Pro Zug:
+Per turn:
   1. DON!! Phase: donAvailable += 2 (Turn 1 going first: += 1), cap at 10
   2. Draw Phase: deckSize -= 1, handSize += 1 (Turn 1 going first: skip)
   3. Brook Ability (optional): deckSize -= 4, trashSize += 4
-  4. Gespielte Karten (Play Plan) — validiert gegen DON!!-Budget:
-     - Karte spielen: handSize -= 1, donAvailable -= card.cost
+  4. Played cards (Play Plan) — validated against DON!! budget:
+     - Play card: handSize -= 1, donAvailable -= card.cost
      - trash_from_deck: deckSize -= X, trashSize += X
      - return_from_trash: trashSize -= X, deckSize += X
      - draw: deckSize -= X, handSize += X
-  5. End-of-Turn Check: deckSize <= 0 → Zug wird fertig gespielt, Brook stirbt am Ende DIESES Zugs
-     (Andere Leader sterben sofort bei Deck = 0, Brook spielt den Zug noch zu Ende)
+  5. End-of-Turn Check: deckSize <= 0 → turn plays out, Brook dies at the end of THIS turn
+     (Other leaders die immediately when deck = 0, Brook finishes the turn)
 ```
 
 ## Services
 
-- `CardImportService` — Importiert Karten aus JSON (vegapull-Format) oder zukünftig aus externer API
-- `DeckValidationService` — Validiert 50-Karten-Regel, max 4 Kopien
-- `SimulationEngine` — Kern-Simulation (run, processTurn)
-- `EffectResolver` — Löst CardEffects in State-Änderungen auf
+- `CardImportService` — Imports cards from JSON (vegapull format) or future external API
+- `DeckValidationService` — Validates 50-card rule, max 4 copies
+- `SimulationEngine` — Core simulation (run, processTurn)
+- `EffectResolver` — Resolves CardEffects into state changes
 
 ## Controllers
 
 - `CardsController` — index, create, store, show, destroy
-- `CardsImportController` — create (Upload-Form), store (Import)
+- `CardsImportController` — create (upload form), store (import)
 - `DecksController` — CRUD
 - `SimulationsController` — create, store, show
 
 ## UI Flow (Blade + Tailwind 4 + Alpine.js)
 
-1. **Cards** (`/cards`) — Kartenliste mit Filter, Import-Button, manuelle Erfassung
-2. **Decks** (`/decks`) — Deck bauen (Karten suchen links, Deck rechts, Zähler X/50)
-3. **Simulation** (`/simulations/create`) — Deck wählen, Turn Planner mit DON!!-Budget-Anzeige
-4. **Ergebnis** (`/simulations/{id}`) — Zug-für-Zug Deck/Trash/DON!!-Verlauf, Death-Turn markiert
+1. **Cards** (`/cards`) — Card list with filters, import button, manual entry
+2. **Decks** (`/decks`) — Deck builder (search cards on left, deck on right, counter X/50)
+3. **Simulation** (`/simulations/create`) — Select deck, Turn Planner with DON!! budget display
+4. **Result** (`/simulations/{id}`) — Turn-by-turn deck/trash/DON!! progression, death turn marked
 
-## Phasen
+## Phases
 
-Jede Phase wird als eigener OpenSpec Change umgesetzt (TDD: Tests zuerst).
+Each phase is implemented as its own OpenSpec Change (TDD: tests first).
 
 1. **Card System** — Enums, Card Model/Migration/Factory/Seeder, CardImportService, Controller, Views
-2. **Deck Builder** — Deck/DeckCard Models, DeckValidationService, Controller, Views mit Alpine.js
-3. **Simulation Engine** — CardEffect Model, DTOs, SimulationEngine, EffectResolver, umfangreiche Tests
-4. **Simulation UI** — Simulation/TurnAction Models, Controller, Turn Planner, Ergebnis-View
-5. **Polish** — Dashboard, Chart-Visualisierung, Kartenbilder, Responsive
+2. **Deck Builder** — Deck/DeckCard Models, DeckValidationService, Controller, Views with Alpine.js
+3. **Simulation Engine** — CardEffect Model, DTOs, SimulationEngine, EffectResolver, extensive tests
+4. **Simulation UI** — Simulation/TurnAction Models, Controller, Turn Planner, result view
+5. **Polish** — Dashboard, chart visualization, card images, responsive
 
-## Externe Abhängigkeit: OPTCG Card API
+## External Dependency: OPTCG Card API
 
-Wird als separates Projekt gebaut (basierend auf vegapull/Bandai-Scraping). Dieses Projekt wird so architected, dass es diese API später konsumieren kann (CardImportService mit austauschbarer Datenquelle). Bis dahin werden Karten manuell erfasst.
+Will be built as a separate project (based on vegapull/Bandai scraping). This project is architected so it can consume that API later (CardImportService with swappable data source). Until then, cards are entered manually.
 
-## Verifizierung
+## Verification
 
-- `php artisan test --compact` nach jeder Phase
-- `vendor/bin/pint --dirty --format agent` nach PHP-Änderungen
-- Brook ohne Extra-Effekte: Deck leer nach ~8 Zügen (41 / 5 pro Zug)
-- DON!!-Kurve: Going first Turn 1 = 1, Turn 5 = 9
+- `php artisan test --compact` after each phase
+- `vendor/bin/pint --dirty --format agent` after PHP changes
+- Brook without extra effects: deck empty after ~8 turns (41 / 5 per turn)
+- DON!! curve: Going first Turn 1 = 1, Turn 5 = 9
