@@ -120,6 +120,72 @@ Define in `CLAUDE.md` under `## Testing (TDD)`:
 - Aim for comprehensive test coverage — no feature without tests
 - `php artisan test --compact` after every change
 
+## 5a. TDD Enforcement
+
+### Pre-commit Hook
+
+Store the hook in `.githooks/pre-commit` (committed to the repo):
+
+```sh
+#!/bin/sh
+
+echo "Running tests before commit..."
+
+php artisan test --compact
+
+if [ $? -ne 0 ]; then
+    echo "Tests failed. Commit blocked."
+    exit 1
+fi
+```
+
+Make it executable:
+
+```bash
+chmod +x .githooks/pre-commit
+```
+
+Activate by adding to the `setup` script in `composer.json`:
+
+```json
+"setup": [
+    "...",
+    "git config core.hooksPath .githooks"
+]
+```
+
+Run once on existing projects:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+### Architecture Test
+
+Create `tests/Feature/ArchTest.php` to enforce that every Artisan Command has a corresponding test file:
+
+```php
+it('all artisan commands have a corresponding test file', function () {
+    $commandFiles = glob(app_path('Console/Commands/*.php')) ?: [];
+
+    if (empty($commandFiles)) {
+        expect(true)->toBeTrue(); // no commands to check
+
+        return;
+    }
+
+    foreach ($commandFiles as $commandFile) {
+        $commandName = basename($commandFile, '.php');
+        $testFile = base_path("tests/Feature/{$commandName}Test.php");
+
+        expect(file_exists($testFile))
+            ->toBeTrue("Missing test file for command: {$commandName}");
+    }
+});
+```
+
+This test is automatically enforced via the pre-commit hook — a command without a test file will block the commit.
+
 ## 6. Git + OpenSpec Feature Branch Flow
 
 Every OpenSpec change gets its own feature branch. No squash merge — the full history stays on `main`.
