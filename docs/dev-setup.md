@@ -71,8 +71,10 @@ rules:
   tasks:
     - Break tasks into chunks of max 2 hours
     - Tests must be listed BEFORE implementation tasks
+    - Maximum 15 tasks per change — split into smaller changes if more
   proposal:
     - Always include a "Non-goals" section
+    - Keep scope small — one concern per change, not an entire feature layer
 ```
 
 ### OpenSpec Workflow
@@ -316,7 +318,31 @@ $PHP artisan optimize:clear
 ./deploy.sh
 ```
 
-## 8. Extend .gitignore
+## 8. Global `~/.claude/CLAUDE.md` (one-time, global)
+
+Create `~/.claude/CLAUDE.md` with universal rules that apply to **all** projects. This avoids duplicating them in every project's `CLAUDE.md`.
+
+```markdown
+## Language Convention
+All project artifacts in English. Conversation with Claude in German.
+
+## Conventional Commits
+Format: `<type>[scope]: <description>`
+Types: feat, fix, docs, refactor, test, chore, style, perf, build, ci
+
+## Git Flow
+Feature branches: `feat/<change-name>`. No squash merges. Full history on main.
+
+## TDD
+Tests first, then implementation.
+
+## Claude Code Deny Rules
+...
+```
+
+The project-level `CLAUDE.md` then only needs project-specific rules.
+
+## 10. Extend .gitignore
 
 Add the following:
 
@@ -324,7 +350,7 @@ Add the following:
 .claude/settings.local.json
 ```
 
-## 9. Claude Code Agents (global, one-time)
+## 11. Claude Code Agents (global, one-time)
 
 Set up two agents in `~/.claude/agents/`:
 
@@ -333,7 +359,7 @@ Set up two agents in `~/.claude/agents/`:
 
 Source: [freekmurze/dotfiles/config/claude/agents/](https://github.com/freekmurze/dotfiles/tree/main/config/claude/agents)
 
-## 10. Git-Delta (global, one-time)
+## 12. Git-Delta (global, one-time)
 
 ```bash
 brew install git-delta
@@ -356,7 +382,7 @@ Add to `~/.gitconfig`:
     colorMoved = default
 ```
 
-## 11. Optional: Additional CLI Tools
+## 13. Optional: Additional CLI Tools
 
 ```bash
 brew install eza bat zoxide fzf fnm
@@ -368,7 +394,7 @@ brew install eza bat zoxide fzf fnm
 - `fzf` — Fuzzy finder
 - `fnm` — Fast Node.js version manager
 
-## 12. Shell Aliases
+## 14. Shell Aliases
 
 Create a file `~/.aliases` and source it in `~/.zshrc`:
 
@@ -407,7 +433,7 @@ alias cy="claude --dangerously-skip-permissions"
 alias nah="git reset --hard && git clean -df"
 ```
 
-## 13. Claude Code Deny Rules (global)
+## 15. Claude Code Deny Rules (global)
 
 Add deny rules to `~/.claude/settings.json`. These apply even in bypass mode (`--dangerously-skip-permissions`) and block destructive commands:
 
