@@ -1,12 +1,10 @@
 <?php
 
-it('all artisan commands have a corresponding test file', function () {
+test('all artisan commands have a corresponding test file', function () {
     $commandFiles = glob(app_path('Console/Commands/*.php')) ?: [];
 
     if (empty($commandFiles)) {
-        expect(true)->toBeTrue(); // no commands to check
-
-        return;
+        $this->markTestSkipped('No artisan commands found to check.');
     }
 
     foreach ($commandFiles as $commandFile) {

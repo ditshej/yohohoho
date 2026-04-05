@@ -2,9 +2,7 @@
 
 echo "Running tests before commit..."
 
-php artisan test --compact
-
-if [ $? -ne 0 ]; then
+if ! php artisan test --compact; then
     echo "Tests failed. Commit blocked."
     exit 1
 fi
