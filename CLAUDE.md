@@ -206,13 +206,17 @@ openspec new change "<change-name>"
 # /opsx:apply — work through tasks
 # → Commit(s): "feat(<change-name>): ...", "test(<change-name>): ...", etc.
 
-# 4. Code Review
+# 4. Verify
+# /opsx:verify — checks Completeness, Correctness, Coherence against specs
+# → Fix all CRITICALs before proceeding
+
+# 5. Code Review
 # a) laravel-simplifier Agent — automated review
 # b) Fix findings, then commit: "refactor(<change-name>): apply review feedback"
 # c) Agent provides code overview + manual testing instructions
 # d) User reviews themselves — don't proceed until user OK!
 
-# 5. Archiving
+# 6. Archiving
 # /opsx:archive — close change, merge specs
 # → Commit: "docs(<change-name>): archive change"
 
@@ -232,6 +236,6 @@ git branch -d feat/<change-name>
 * docs(list-packs): add proposal, design and tasks
 ```
 
-Each feature follows: Planning → Implementation → Review (optional) → Archiving.
+Each feature follows: Planning → Implementation → Verify → Review → Archiving.
 Use the change name as commit scope for every commit on that branch.
 Multiple commits per phase are fine — commit as often as makes sense (feat, fix, test, refactor, etc.).

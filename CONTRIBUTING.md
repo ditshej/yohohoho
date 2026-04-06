@@ -37,10 +37,14 @@ git add openspec/ && git commit -m "docs(<change-name>): add proposal, design an
 # 4. Implement (TDD — tests first)
 /opsx:apply
 
-# 4a. Human review — don't proceed until approved
+# 5. Verify — checks Completeness, Correctness, Coherence against specs
+/opsx:verify
+# → Fix all CRITICALs before proceeding
+
+# 6. Human review — don't proceed until approved
 # Open a PR or share git diff main...HEAD for review
 
-# 5. Archive the change
+# 7. Archive the change
 /opsx:archive
 
 # 6. Rebase onto main before merging
