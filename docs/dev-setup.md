@@ -38,7 +38,210 @@ Create the database file:
 touch database/database.sqlite
 ```
 
-## 2. Set up OpenSpec
+## 2. Project Files
+
+Every project gets four standard files at the root: `README.md`, `LICENSE`, `CONTRIBUTING.md`, and `CHANGELOG.md`.
+
+### README.md
+
+```markdown
+# <Project Name>
+
+<One-line description>
+
+## Requirements
+
+- PHP 8.x+
+- Composer
+- Node.js
+- [Laravel Herd](https://herd.laravel.com)
+
+## Installation
+
+​```bash
+git clone <repo-url>
+cd <project-name>
+composer install
+npm install
+cp .env.example .env
+touch database/database.sqlite
+php artisan key:generate
+git config core.hooksPath .githooks
+​```
+
+## Testing
+
+​```bash
+php artisan test --compact
+​```
+
+## Deployment
+
+​```bash
+./deploy.sh
+​```
+
+## License
+
+MIT
+```
+
+### LICENSE
+
+```
+MIT License
+
+Copyright (c) <year> <author>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+### CONTRIBUTING.md
+
+```markdown
+# Contributing
+
+## Workflow
+
+Every change follows the OpenSpec workflow on its own feature branch:
+
+1. **Propose** — `/opsx:propose` creates `proposal.md`, `specs/`, `design.md`, `tasks.md`
+2. **Implement** — `/opsx:apply` works through tasks (TDD: tests before code)
+3. **Review** — laravel-simplifier agent, then manual review
+4. **Archive** — `/opsx:archive` closes the change and merges specs
+
+See `docs/dev-setup.md` for the complete setup and conventions.
+
+## Branches
+
+​```
+feat/<change-name>      # e.g. feat/import-cards-command
+​```
+
+No squash merges — full history on `main`.
+
+## Commits
+
+Conventional Commits, with the change name as scope on feature branches:
+
+​```
+docs(my-feature): add proposal, design and tasks
+feat(my-feature): add the new thing
+fix(my-feature): correct edge case
+refactor(my-feature): apply review feedback
+docs(my-feature): archive change
+​```
+
+Write `feat` and `fix` messages as user-facing descriptions — they appear in the changelog.
+
+## Testing
+
+TDD — write tests first. The pre-commit hook blocks commits when tests fail.
+```
+
+### CHANGELOG.md + git-cliff
+
+Generate the changelog automatically from conventional commits using [git-cliff](https://git-cliff.org):
+
+```bash
+brew install git-cliff
+```
+
+Add `cliff.toml` to the project root:
+
+```toml
+[changelog]
+header = """
+# Changelog\n
+All notable changes to this project will be documented in this file.\n
+"""
+body = """
+{% if version %}\
+    ## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}
+{% else %}\
+    ## [Unreleased]
+{% endif %}\
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group | upper_first }}
+{% for commit in commits %}\
+- {% if commit.scope %}**{{ commit.scope }}:** {% endif %}{{ commit.message | upper_first }}
+{% endfor %}
+{% endfor %}\n
+"""
+trim = true
+
+[git]
+conventional_commits = true
+filter_unconventional = true
+commit_parsers = [
+    { message = "^feat", group = "Features" },
+    { message = "^fix", group = "Bug Fixes" },
+    { message = "^perf", group = "Performance" },
+    { message = "^refactor", skip = true },
+    { message = "^docs", skip = true },
+    { message = "^test", skip = true },
+    { message = "^chore", skip = true },
+    { message = "^style", skip = true },
+    { message = "^build", skip = true },
+    { message = "^ci", skip = true },
+]
+filter_commits = true
+tag_pattern = "v[0-9].*"
+sort_commits = "oldest"
+```
+
+The **scope** from commit messages (e.g. `feat(card-management): ...`) is displayed in the changelog entry as **card-management:** — it provides context without cluttering the description.
+
+Generate or update the changelog:
+
+```bash
+git cliff -o CHANGELOG.md
+```
+
+Tag a release before generating to get versioned sections instead of `[Unreleased]`:
+
+```bash
+git tag v1.0.0
+git cliff -o CHANGELOG.md
+```
+
+Add a composer script for convenience:
+
+```json
+"scripts": {
+    "changelog": "git cliff -o CHANGELOG.md"
+}
+```
+
+#### Commit message quality
+
+`docs`, `chore`, `refactor`, and `test` commits are **filtered out** — their messages don't appear in the changelog. Only `feat`, `fix`, and `perf` do. Write those with the reader in mind:
+
+```
+# Bad — too internal
+feat(card-management): implement index and show methods
+
+# Good — user-facing
+feat(card-management): add card browsing with filters and detail pages
+```
+
+## 3. Set up OpenSpec
 
 ```bash
 npm install -g @fission-ai/openspec
@@ -107,13 +310,13 @@ Each change goes through 4 artifacts:
 > **Rule 2:** Commit immediately after `/opsx:propose` — before implementing:
 > `git add openspec/ && git commit -m "docs(<name>): add proposal, design and tasks"`
 
-## 3. Spatie Guidelines
+## 4. Spatie Guidelines
 
 Copy `docs/spatie-guidelines.md` into the new project. This file contains the Spatie PHP/Laravel Coding Standards, optimized for AI Code Assistants.
 
 Source: [freekmurze/dotfiles](https://github.com/freekmurze/dotfiles/blob/main/config/claude/laravel-php-guidelines.md)
 
-## 4. Conventional Commits
+## 5. Conventional Commits
 
 Define the convention in `CLAUDE.md` under `## Conventional Commits`:
 
@@ -130,7 +333,7 @@ Define the convention in `CLAUDE.md` under `## Conventional Commits`:
 
 Reference: [conventionalcommits.org/en/v1.0.0](https://www.conventionalcommits.org/en/v1.0.0/)
 
-## 5. TDD (Test-Driven Development)
+## 6. TDD (Test-Driven Development)
 
 Define in `CLAUDE.md` under `## Testing (TDD)`:
 
@@ -206,7 +409,7 @@ it('all artisan commands have a corresponding test file', function () {
 
 This test is automatically enforced via the pre-commit hook — a command without a test file will block the commit.
 
-## 6. Git + OpenSpec Feature Branch Flow
+## 7. Git + OpenSpec Feature Branch Flow
 
 Every OpenSpec change gets its own feature branch. No squash merge — the full history stays on `main`.
 
@@ -269,7 +472,7 @@ Each feature follows: Planning → Implementation → Review (optional) → Arch
 Use the change name as commit scope for every commit on that branch.
 Multiple commits per phase are fine — commit as often as makes sense (feat, fix, test, refactor, etc.).
 
-## 7. Set up Deployment
+## 8. Set up Deployment
 
 ### deploy.sh (local)
 
@@ -342,7 +545,7 @@ $PHP artisan optimize:clear
 ./deploy.sh
 ```
 
-## 8. Laravel Boost / MCP Setup
+## 9. Laravel Boost / MCP Setup
 
 Laravel Boost provides an MCP server with tools designed for Laravel projects: database queries, schema inspection, log reading, and documentation search.
 
@@ -360,7 +563,7 @@ claude mcp list
 
 The Boost rules (database tools, doc search, Artisan guidance) are injected into Claude's context automatically when the MCP server is active. The project-level `CLAUDE.md` should additionally include skills activation rules and project-specific conventions.
 
-## 9. Global `~/.claude/CLAUDE.md` (one-time, global)
+## 10. Global `~/.claude/CLAUDE.md` (one-time, global)
 
 Create `~/.claude/CLAUDE.md` with universal rules that apply to **all** projects. This avoids duplicating them in every project's `CLAUDE.md`.
 
@@ -381,12 +584,12 @@ Feature branches: `feat/<change-name>`. No squash merges. Full history on main.
 Tests first, then implementation.
 
 ## Claude Code Deny Rules
-See Section 15 of dev-setup — add these rules to `~/.claude/settings.json`.
+See "Claude Code Deny Rules" section of dev-setup — add these rules to `~/.claude/settings.json`.
 ```
 
 The project-level `CLAUDE.md` then only needs project-specific rules.
 
-## 10. Extend .gitignore
+## 11. Extend .gitignore
 
 Add the following:
 
@@ -395,7 +598,7 @@ Add the following:
 .env.deploy
 ```
 
-## 11. Claude Code Agents (global, one-time)
+## 12. Claude Code Agents (global, one-time)
 
 Set up two agents in `~/.claude/agents/`:
 
@@ -404,7 +607,7 @@ Set up two agents in `~/.claude/agents/`:
 
 Source: [freekmurze/dotfiles/config/claude/agents/](https://github.com/freekmurze/dotfiles/tree/main/config/claude/agents)
 
-## 12. Git-Delta (global, one-time)
+## 13. Git-Delta (global, one-time)
 
 ```bash
 brew install git-delta
@@ -427,10 +630,10 @@ Add to `~/.gitconfig`:
     colorMoved = default
 ```
 
-## 13. Optional: Additional CLI Tools
+## 14. Optional: Additional CLI Tools
 
 ```bash
-brew install eza bat zoxide fzf fnm
+brew install eza bat zoxide fzf fnm git-cliff
 ```
 
 - `eza` — Better `ls` with icons
@@ -438,8 +641,9 @@ brew install eza bat zoxide fzf fnm
 - `zoxide` — Smart `cd` (learns directories)
 - `fzf` — Fuzzy finder
 - `fnm` — Fast Node.js version manager
+- `git-cliff` — Changelog generator from conventional commits
 
-## 14. Shell Aliases
+## 15. Shell Aliases
 
 Create a file `~/.aliases` and source it in `~/.zshrc`:
 
@@ -478,7 +682,7 @@ alias cy="claude --dangerously-skip-permissions"
 alias nah="git reset --hard && git clean -df"
 ```
 
-## 15. Claude Code Deny Rules (global)
+## 16. Claude Code Deny Rules (global)
 
 Add deny rules to `~/.claude/settings.json`. These apply even in bypass mode (`--dangerously-skip-permissions`) and block destructive commands:
 
@@ -510,4 +714,4 @@ Reference: [Safety Nets for Claude Code](https://cbox.dk/blog/safety-nets-for-cl
 
 ## Open TODOs
 
-- [ ] **`/new-laravel-project` skill** — Once this dev-setup is stable, create a Claude Code skill that automates Sections 1–6 and 9–10 for new projects (composer create-project, SQLite, OpenSpec init, pre-commit hook, ArchTest, CLAUDE.md boilerplate, .gitignore).
+- [ ] **`/new-laravel-project` skill** — Once this dev-setup is stable, create a Claude Code skill that automates Sections 1–7 and 10–11 for new projects (composer create-project, SQLite, project files, OpenSpec init, pre-commit hook, ArchTest, CLAUDE.md boilerplate, .gitignore).
