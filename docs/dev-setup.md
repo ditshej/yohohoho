@@ -93,7 +93,7 @@ Each change goes through 4 artifacts:
 > **Rule 1:** Every new feature ALWAYS starts with `/opsx:propose` — never implement directly, not even in plan mode.
 
 > **Rule 2:** Commit immediately after `/opsx:propose` — before implementing:
-> `git add openspec/ && git commit -m "docs: add openspec change <name>"`
+> `git add openspec/ && git commit -m "docs(<name>): add proposal, design and tasks"`
 
 ## 3. Spatie Guidelines
 
@@ -110,6 +110,11 @@ Define the convention in `CLAUDE.md` under `## Git Commits`:
 - Scope optional in parentheses: `feat(auth): add login endpoint`
 - Breaking changes: `!` before the colon: `feat!: remove legacy API`
 - Description: imperative mood, lowercase, no trailing period
+- **OpenSpec changes:** use the change name as scope for every commit on that branch:
+  `docs(list-packs): add proposal, design and tasks`
+  `feat(list-packs): add packs() and pack() endpoints`
+  `refactor(list-packs): apply review feedback`
+  `docs(list-packs): archive change`
 
 Reference: [conventionalcommits.org/en/v1.0.0](https://www.conventionalcommits.org/en/v1.0.0/)
 
@@ -207,7 +212,7 @@ git checkout -b feat/<change-name>
 # 2. Create & plan OpenSpec change
 openspec new change "<change-name>"
 # → create proposal.md, specs/, design.md, tasks.md
-# → Commit: "docs: add openspec change <change-name>"
+# → Commit: "docs(<change-name>): add proposal, design and tasks"
 
 # 3. Implementation (TDD)
 # /opsx:apply — work through tasks
@@ -219,14 +224,14 @@ openspec new change "<change-name>"
 #    + manual testing instructions if UI/endpoints are affected
 # d) User reviews themselves (PhpStorm, GitHub PR, or git diff main...HEAD)
 # → Don't proceed until user OK!
-# → Commit(s): "feat: ...", "refactor: ...", etc.
+# → Commit(s): "feat(<change-name>): ...", "refactor(<change-name>): ...", etc.
 
 # Keep feature branch current: rebase instead of merge
 git fetch origin && git rebase origin/main
 
 # 5. Archiving
 # /opsx:archive — close change, merge specs
-# → Commit: "docs: archive <change-name> change"
+# → Commit: "docs(<change-name>): archive change"
 
 # 6. Merge to main (no squash!)
 git checkout main
@@ -238,16 +243,18 @@ git branch -d feat/<change-name>
 ### Resulting History on main
 
 ```
-* docs: archive import-cards-command change
-* refactor: apply simplifier findings
-* feat: add cards:import artisan command
-* docs: add openspec change import-cards-command
-* docs: archive pack-and-card-models change
-* feat: add Pack and Card models with migrations and factories
-* docs: add openspec change pack-and-card-models
+* docs(import-cards-command): archive change
+* refactor(import-cards-command): apply review feedback
+* feat(import-cards-command): add cards:import artisan command
+* docs(import-cards-command): add proposal, design and tasks
+* docs(pack-and-card-models): archive change
+* feat(pack-and-card-models): add Pack and Card models with migrations and factories
+* docs(pack-and-card-models): add proposal, design and tasks
 ```
 
-Each feature has 3-4 commits: Planning → Implementation → Review (optional) → Archiving.
+Each feature follows: Planning → Implementation → Review (optional) → Archiving.
+Use the change name as commit scope for every commit on that branch.
+Multiple commits per phase are fine — commit as often as makes sense (feat, fix, test, refactor, etc.).
 
 ## 7. Set up Deployment
 
@@ -329,6 +336,7 @@ All project artifacts in English. Conversation with Claude in German.
 ## Conventional Commits
 Format: `<type>[scope]: <description>`
 Types: feat, fix, docs, refactor, test, chore, style, perf, build, ci
+OpenSpec changes: use change name as scope for every commit on that branch.
 
 ## Git Flow
 Feature branches: `feat/<change-name>`. No squash merges. Full history on main.

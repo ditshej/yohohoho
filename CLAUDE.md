@@ -200,21 +200,21 @@ git checkout -b feat/<change-name>
 # 2. Create & plan OpenSpec change
 openspec new change "<change-name>"
 # → create proposal.md, specs/, design.md, tasks.md
-# → Commit: "docs: add openspec change <change-name>"
+# → Commit: "docs(<change-name>): add proposal, design and tasks"
 
 # 3. Implementation (TDD)
 # /opsx:apply — work through tasks
-# → Commit(s): "feat: ...", "test: ...", etc.
+# → Commit(s): "feat(<change-name>): ...", "test(<change-name>): ...", etc.
 
 # 4. Code Review
 # a) laravel-simplifier Agent — automated review
-# b) Fix findings, then commit
+# b) Fix findings, then commit: "refactor(<change-name>): apply review feedback"
 # c) Agent provides code overview + manual testing instructions
 # d) User reviews themselves — don't proceed until user OK!
 
 # 5. Archiving
 # /opsx:archive — close change, merge specs
-# → Commit: "docs: archive <change-name> change"
+# → Commit: "docs(<change-name>): archive change"
 
 # 6. Merge to main (no squash!)
 git checkout main
@@ -226,10 +226,12 @@ git branch -d feat/<change-name>
 ### Resulting History on main
 
 ```
-* docs: archive <change-name> change
-* refactor: apply simplifier findings
-* feat: add <feature description>
-* docs: add openspec change <change-name>
+* docs(list-packs): archive change
+* refactor(list-packs): apply review feedback
+* feat(list-packs): add packs() and pack() endpoints
+* docs(list-packs): add proposal, design and tasks
 ```
 
-Each feature has 3-4 commits: Planning → Implementation → Review (optional) → Archiving.
+Each feature follows: Planning → Implementation → Review (optional) → Archiving.
+Use the change name as commit scope for every commit on that branch.
+Multiple commits per phase are fine — commit as often as makes sense (feat, fix, test, refactor, etc.).
