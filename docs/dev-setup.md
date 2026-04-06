@@ -859,30 +859,57 @@ For projects with a roadmap, `openspec/AGENT_MISSION.md` provides instructions t
 explore → propose → apply → verify → ai-review → human-review → archive
 ```
 
-### Checkpoints (agent pauses and waits for user OK)
+### Two Modes: Interactive vs. Autonomous
 
-| After | Agent presents |
-|-------|----------------|
-| **explore** | Investigation findings — is the scope clear? Any open questions? |
-| **propose** | Proposal summary (WHY, WHAT, non-goals) — is the scope right? |
-| **ai-review** | Change summary + how to review manually |
+**Interactive mode** (normal conversation): CHECKPOINTs are active — the agent pauses and waits for user OK at each gate.
 
-### Change Summary after AI Review
+| After | Agent presents | User decides |
+|-------|----------------|--------------|
+| **explore** | Investigation findings — is the scope clear? | Proceed to propose? |
+| **propose** | Proposal summary (WHY, WHAT, non-goals) | Proceed to implement? |
+| **ai-review** | Change summary + manual review instructions | Proceed to archive? |
 
-The agent should present:
-- What changed: new files, modified files, architecture decisions
-- Test results: N tests passed
-- How to review manually: `git diff main..HEAD`, which pages or endpoints to visit, specific test commands
+**Autonomous mode** (AGENT_MISSION): Per-change CHECKPOINTs are skipped. The agent works through the entire roadmap without pausing. Instead, a mandatory stop is produced at the end of the session.
 
-Only after the user approves does the agent proceed to `/opsx:archive`.
+### Mandatory Stop after Autonomous Session
+
+After completing all changes (or at the end of the session), the agent must:
+
+1. **Stop** — do not start another change
+2. **Present a full session summary:**
+
+```
+## Session Summary
+
+| Change        | Branch (deleted) | Commits               | Tests    |
+|---------------|------------------|-----------------------|----------|
+| change-name   | feat/change-name | docs · feat · docs    | 12 passed |
+| ...           | ...              | ...                   | ...      |
+
+## Review
+- All changes merged to main
+- Open PR: <url> (if applicable)
+- Review with: git log --oneline / git diff v<prev>..HEAD
+- Run tests: php artisan test --compact
+```
+
+3. **Open a GitHub PR (optional)** — if the project has a remote and a meaningful batch of changes warrants it:
+
+```bash
+gh pr create --title "<summary>" --body "<session summary>"
+```
+
+This is what enables long autonomous runs: the human reviews at the end (or on the PR), not during.
 
 ### AGENT_MISSION.md Contents
 
 The file should define:
 - Working directory and all commands run from it
-- The exact workflow steps (branch → propose → apply → verify → ai-review → checkpoint → archive → merge)
+- Mode: autonomous (checkpoints skipped, mandatory stop at end)
+- The exact workflow steps per change (branch → propose → apply → verify → ai-review → archive → merge)
 - The change sequence from ROADMAP.md with dependencies noted
 - TDD rules, coding standards, and when to pause vs. proceed autonomously
+- Final output format (session summary table + review instructions)
 
 Reference: `op-cards-php/openspec/AGENT_MISSION.md`
 

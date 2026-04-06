@@ -191,6 +191,8 @@ Every OpenSpec change gets its own feature branch. No squash merge — the full 
 feat/<change-name>      # e.g. feat/card-management
 ```
 
+> **Autonomous mode (AGENT_MISSION):** When working through a full roadmap autonomously, per-change CHECKPOINTs are skipped. Instead, after the session is complete, the agent must produce a mandatory stop — presenting a full summary of all changes and optionally opening a GitHub PR for review.
+
 ### Workflow per Change
 
 ```bash
