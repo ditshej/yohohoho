@@ -505,3 +505,9 @@ Add deny rules to `~/.claude/settings.json`. These apply even in bypass mode (`-
 ```
 
 Reference: [Safety Nets for Claude Code](https://cbox.dk/blog/safety-nets-for-claude-code-skip-permissions)
+
+---
+
+## Open TODOs
+
+- [ ] **`/new-laravel-project` skill** — Once this dev-setup is stable, create a Claude Code skill that automates Sections 1–6 and 9–10 for new projects (composer create-project, SQLite, OpenSpec init, pre-commit hook, ArchTest, CLAUDE.md boilerplate, .gitignore).
