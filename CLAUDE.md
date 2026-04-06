@@ -194,13 +194,18 @@ feat/<change-name>      # e.g. feat/card-management
 ### Workflow per Change
 
 ```bash
+# 0. Explore (optional)
+# /opsx:explore — investigate ideas and requirements before proposing
+# → CHECKPOINT: Present findings to user → wait for OK before proposing
+
 # 1. Create branch
 git checkout -b feat/<change-name>
 
-# 2. Create & plan OpenSpec change
+# 2. Propose
 openspec new change "<change-name>"
-# → create proposal.md, specs/, design.md, tasks.md
+# /opsx:propose — create proposal.md, specs/, design.md, tasks.md
 # → Commit: "docs(<change-name>): add proposal, design and tasks"
+# → CHECKPOINT: Present proposal summary → wait for OK before implementing
 
 # 3. Implementation (TDD)
 # /opsx:apply — work through tasks
@@ -210,17 +215,20 @@ openspec new change "<change-name>"
 # /opsx:verify — checks Completeness, Correctness, Coherence against specs
 # → Fix all CRITICALs before proceeding
 
-# 5. Code Review
-# a) laravel-simplifier Agent — automated review
-# b) Fix findings, then commit: "refactor(<change-name>): apply review feedback"
-# c) Agent provides code overview + manual testing instructions
-# d) User reviews themselves — don't proceed until user OK!
+# 5. AI Review
+# laravel-simplifier Agent — automated review (spawn parallel subagents)
+# → Fix critical findings, commit: "refactor(<change-name>): apply review feedback"
+# → CHECKPOINT: Present change summary:
+#     - What changed (architecture, new/modified files)
+#     - Test results (N passed)
+#     - How to review manually (git diff, which pages/endpoints to test)
+#   → Wait for user OK before archiving
 
 # 6. Archiving
 # /opsx:archive — close change, merge specs
 # → Commit: "docs(<change-name>): archive change"
 
-# 6. Merge to main (no squash!)
+# 7. Merge to main (no squash!)
 git checkout main
 git merge feat/<change-name>
 git push

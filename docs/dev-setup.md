@@ -153,31 +153,39 @@ No squash merges — full history stays on `main`.
 ### Workflow per Change
 
 ​```bash
+# 0. Explore (optional)
+# /opsx:explore — investigate before proposing
+# → Present findings to user, wait for OK
+
 # 1. Create a feature branch
 git checkout -b feat/<change-name>
 
-# 2. Propose the change (generates proposal, specs, design, tasks)
+# 2. Propose (generates proposal, specs, design, tasks)
 /opsx:propose
-
-# 3. Commit the artifacts before implementing
 git add openspec/ && git commit -m "docs(<change-name>): add proposal, design and tasks"
+# → Present proposal summary to user, wait for OK before implementing
 
-# 4. Implement (TDD — tests first)
+# 3. Implement (TDD — tests first)
 /opsx:apply
 
-# 5. Verify — checks Completeness, Correctness, Coherence against specs
+# 4. Verify — checks Completeness, Correctness, Coherence against specs
 /opsx:verify
 # → Fix all CRITICALs before proceeding
+
+# 5. AI Review
+# Spawn laravel-simplifier (or php-library-reviewer) agents
+# → Fix critical findings, commit
+# → Present change summary + manual review instructions → wait for user OK
 
 # 6. Human review — don't proceed until approved
 
 # 7. Archive the change
 /opsx:archive
 
-# 6. Rebase onto main before merging
+# 8. Rebase onto main before merging
 git fetch origin && git rebase origin/main
 
-# 7. Merge (no squash)
+# 9. Merge (no squash)
 git checkout main && git merge feat/<change-name>
 ​```
 
@@ -483,29 +491,35 @@ feat/<change-name>      # e.g. feat/import-cards-command
 ### Workflow per Change
 
 ```bash
+# 0. Explore (optional)
+# /opsx:explore — investigate ideas and requirements before proposing
+# → CHECKPOINT: Present findings to user → wait for OK before proposing
+
 # 1. Create branch
 git checkout -b feat/<change-name>
 
-# 2. Create & plan OpenSpec change
+# 2. Propose
 openspec new change "<change-name>"
-# → create proposal.md, specs/, design.md, tasks.md
+# /opsx:propose — create proposal.md, specs/, design.md, tasks.md
 # → Commit: "docs(<change-name>): add proposal, design and tasks"
+# → CHECKPOINT: Present proposal summary → wait for OK before implementing
 
 # 3. Implementation (TDD)
 # /opsx:apply — work through tasks
+# → Commit(s): "feat(<change-name>): ...", "test(<change-name>): ...", etc.
 
 # 4. Verify
 # /opsx:verify — checks Completeness, Correctness, Coherence against specs
 # → Fix all CRITICALs before proceeding
 
-# 5. Code Review
-# a) laravel-simplifier Agent — automated review
-# b) Fix findings, then commit
-# c) Agent provides code overview (architecture, files, tests)
-#    + manual testing instructions if UI/endpoints are affected
-# d) User reviews themselves (PhpStorm, GitHub PR, or git diff main...HEAD)
-# → Don't proceed until user OK!
-# → Commit(s): "feat(<change-name>): ...", "refactor(<change-name>): ...", etc.
+# 5. AI Review
+# laravel-simplifier Agent — automated review (spawn parallel subagents)
+# → Fix critical findings, commit: "refactor(<change-name>): apply review feedback"
+# → CHECKPOINT: Present change summary:
+#     - What changed (architecture, new/modified files)
+#     - Test results (N passed)
+#     - How to review manually (git diff, which pages/endpoints to test)
+#   → Wait for user OK before archiving
 
 # Keep feature branch current: rebase instead of merge
 git fetch origin && git rebase origin/main
@@ -514,7 +528,7 @@ git fetch origin && git rebase origin/main
 # /opsx:archive — close change, merge specs
 # → Commit: "docs(<change-name>): archive change"
 
-# 6. Merge to main (no squash!)
+# 7. Merge to main (no squash!)
 git checkout main
 git merge feat/<change-name>
 git push
@@ -533,7 +547,7 @@ git branch -d feat/<change-name>
 * docs(pack-and-card-models): add proposal, design and tasks
 ```
 
-Each feature follows: Planning → Implementation → Verify → Review → Archiving.
+Each feature follows: Explore → Propose → Implement → Verify → AI Review → Human Review → Archive.
 Use the change name as commit scope for every commit on that branch.
 Multiple commits per phase are fine — commit as often as makes sense (feat, fix, test, refactor, etc.).
 
@@ -660,8 +674,41 @@ Add the following:
 
 ```
 .claude/settings.local.json
+.claude/worktrees/
 .env.deploy
 ```
+
+> **Note for application projects:** `docs/dev-setup.md` can also be added here — it is a personal setup document, not application code. Do not do this in a template project like `yohohoho`, where `dev-setup.md` is the product itself.
+
+### Local Permissions (settings.local.json)
+
+`settings.local.json` is excluded by `.gitignore` above, so each developer configures it locally. It lets you pre-approve Claude Code tool calls for this project without touching shared settings.
+
+Recommended baseline:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)",
+      "Bash(git branch:*)",
+      "Bash(git show:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(vendor/bin/pint*)",
+      "Bash(php artisan*)",
+      "Bash(composer test*)",
+      "Bash(composer install*)",
+      "Bash(openspec*)"
+    ]
+  }
+}
+```
+
+Add project-specific entries (MCP tool names, allowed domains) as needed.
 
 ## 12. Claude Code Agents (global, one-time)
 
@@ -774,6 +821,70 @@ Add deny rules to `~/.claude/settings.json`. These apply even in bypass mode (`-
 ```
 
 Reference: [Safety Nets for Claude Code](https://cbox.dk/blog/safety-nets-for-claude-code-skip-permissions)
+
+## 17. Optional: openspec/ROADMAP.md
+
+For projects with multiple planned changes, create `openspec/ROADMAP.md` to list them in implementation order. Each entry gets a short description and the files it will create or modify. This gives agents (and humans) a clear sequenced plan before any implementation begins.
+
+Example structure:
+
+```markdown
+# Roadmap
+
+Planned changes in implementation order.
+
+## Change 1: `exception-hierarchy`
+
+Define the exception types the client throws.
+
+- `src/Exceptions/ApiException.php` — base exception
+- `src/Exceptions/AuthenticationException.php` — 401
+
+## Change 2: `http-client-core`
+
+Core HTTP client with Bearer-token auth and exception mapping.
+
+- `src/OpCardsClient.php`
+```
+
+Reference: `op-cards-php/openspec/ROADMAP.md`
+
+## 18. Optional: openspec/AGENT_MISSION.md
+
+For projects with a roadmap, `openspec/AGENT_MISSION.md` provides instructions that enable a Claude Code agent to autonomously work through the entire roadmap — one change at a time.
+
+### Flow per Change
+
+```
+explore → propose → apply → verify → ai-review → human-review → archive
+```
+
+### Checkpoints (agent pauses and waits for user OK)
+
+| After | Agent presents |
+|-------|----------------|
+| **explore** | Investigation findings — is the scope clear? Any open questions? |
+| **propose** | Proposal summary (WHY, WHAT, non-goals) — is the scope right? |
+| **ai-review** | Change summary + how to review manually |
+
+### Change Summary after AI Review
+
+The agent should present:
+- What changed: new files, modified files, architecture decisions
+- Test results: N tests passed
+- How to review manually: `git diff main..HEAD`, which pages or endpoints to visit, specific test commands
+
+Only after the user approves does the agent proceed to `/opsx:archive`.
+
+### AGENT_MISSION.md Contents
+
+The file should define:
+- Working directory and all commands run from it
+- The exact workflow steps (branch → propose → apply → verify → ai-review → checkpoint → archive → merge)
+- The change sequence from ROADMAP.md with dependencies noted
+- TDD rules, coding standards, and when to pause vs. proceed autonomously
+
+Reference: `op-cards-php/openspec/AGENT_MISSION.md`
 
 ---
 
