@@ -26,6 +26,18 @@ cd project-name
 composer require --dev laravel/boost laravel/pail laravel/pint pestphp/pest pestphp/pest-plugin-laravel
 ```
 
+Configure SQLite in `.env`:
+
+```
+DB_CONNECTION=sqlite
+```
+
+Create the database file:
+
+```bash
+touch database/database.sqlite
+```
+
 ## 2. Set up OpenSpec
 
 ```bash
@@ -103,7 +115,7 @@ Source: [freekmurze/dotfiles](https://github.com/freekmurze/dotfiles/blob/main/c
 
 ## 4. Conventional Commits
 
-Define the convention in `CLAUDE.md` under `## Git Commits`:
+Define the convention in `CLAUDE.md` under `## Conventional Commits`:
 
 - Format: `<type>[optional scope]: <description>`
 - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`
@@ -126,8 +138,6 @@ Define in `CLAUDE.md` under `## Testing (TDD)`:
 - Pest 4 for all tests, prefer Feature Tests
 - Aim for comprehensive test coverage — no feature without tests
 - `php artisan test --compact` after every change
-
-## 5a. TDD Enforcement
 
 ### Pre-commit Hook
 
@@ -173,7 +183,10 @@ Create `tests/Feature/ArchTest.php` to enforce that every Artisan Command has a 
 
 ```php
 it('all artisan commands have a corresponding test file', function () {
-    $commandFiles = glob(app_path('Console/Commands/*.php')) ?: [];
+    $commandFiles = collect(\Illuminate\Support\Facades\File::allFiles(app_path('Console/Commands')))
+        ->filter(fn ($file) => $file->getExtension() === 'php')
+        ->map(fn ($file) => $file->getPathname())
+        ->toArray();
 
     if (empty($commandFiles)) {
         expect(true)->toBeTrue(); // no commands to check
@@ -284,7 +297,8 @@ rsync -az --delete -e "ssh -p $DEPLOY_PORT" \
     $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/public/build/
 
 echo "Deploying..."
-ssh -p $DEPLOY_PORT $DEPLOY_USER@$DEPLOY_HOST -t "cd $DEPLOY_PATH && bash ./_deploy.sh"
+ssh -p $DEPLOY_PORT $DEPLOY_USER@$DEPLOY_HOST -t \
+    "cd $DEPLOY_PATH && DEPLOY_PHP=$DEPLOY_PHP DEPLOY_COMPOSER=$DEPLOY_COMPOSER bash ./_deploy.sh"
 ```
 
 > **Note:** The rsync step is needed when the server has no Node.js. If Node is available, `npm run build` can be run in `_deploy.sh` on the server instead.
@@ -296,6 +310,8 @@ DEPLOY_USER=user
 DEPLOY_HOST=host
 DEPLOY_PORT=22
 DEPLOY_PATH=/path/on/server
+DEPLOY_PHP=/usr/bin/php
+DEPLOY_COMPOSER=/usr/bin/composer
 ```
 
 Add `.env.deploy` itself to `.gitignore` — it contains real credentials.
@@ -306,18 +322,19 @@ Add `.env.deploy` itself to `.gitignore` — it contains real credentials.
 #!/bin/sh
 set -e
 
-PHP=/usr/bin/php
+PHP=${DEPLOY_PHP:-php}
+COMPOSER=${DEPLOY_COMPOSER:-composer}
 
 git pull origin main
 
-$PHP /usr/bin/composer install --no-interaction --optimize-autoloader --no-dev
+$PHP $COMPOSER install --no-interaction --optimize-autoloader --no-dev
 
 $PHP artisan migrate --force
 
 $PHP artisan optimize:clear
 ```
 
-> Adjust the PHP path according to the server (`which php` on the server).
+> Adjust `DEPLOY_PHP` and `DEPLOY_COMPOSER` in `.env.deploy` to match your server's paths (`which php` and `which composer` on the server).
 
 ### Run Deploy
 
@@ -325,7 +342,25 @@ $PHP artisan optimize:clear
 ./deploy.sh
 ```
 
-## 8. Global `~/.claude/CLAUDE.md` (one-time, global)
+## 8. Laravel Boost / MCP Setup
+
+Laravel Boost provides an MCP server with tools designed for Laravel projects: database queries, schema inspection, log reading, and documentation search.
+
+Register the MCP server in Claude Code:
+
+```bash
+claude mcp add laravel-boost -- php artisan mcp:serve
+```
+
+This adds the server to `.claude/settings.json`. Verify with:
+
+```bash
+claude mcp list
+```
+
+The Boost rules (database tools, doc search, Artisan guidance) are injected into Claude's context automatically when the MCP server is active. The project-level `CLAUDE.md` should additionally include skills activation rules and project-specific conventions.
+
+## 9. Global `~/.claude/CLAUDE.md` (one-time, global)
 
 Create `~/.claude/CLAUDE.md` with universal rules that apply to **all** projects. This avoids duplicating them in every project's `CLAUDE.md`.
 
@@ -337,6 +372,7 @@ All project artifacts in English. Conversation with Claude in German.
 Format: `<type>[scope]: <description>`
 Types: feat, fix, docs, refactor, test, chore, style, perf, build, ci
 OpenSpec changes: use change name as scope for every commit on that branch.
+Multiple commits per phase are fine (feat, fix, test, refactor, etc.).
 
 ## Git Flow
 Feature branches: `feat/<change-name>`. No squash merges. Full history on main.
@@ -345,7 +381,7 @@ Feature branches: `feat/<change-name>`. No squash merges. Full history on main.
 Tests first, then implementation.
 
 ## Claude Code Deny Rules
-...
+See Section 15 of dev-setup — add these rules to `~/.claude/settings.json`.
 ```
 
 The project-level `CLAUDE.md` then only needs project-specific rules.
@@ -356,6 +392,7 @@ Add the following:
 
 ```
 .claude/settings.local.json
+.env.deploy
 ```
 
 ## 11. Claude Code Agents (global, one-time)
