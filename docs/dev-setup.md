@@ -44,30 +44,36 @@ Every project gets four standard files at the root: `README.md`, `LICENSE`, `CON
 
 ### README.md
 
+Use `---` horizontal dividers between sections, numbered installation steps, and tables for commands/endpoints. See `one-piece-cards-api/README.md` as a reference for a real project.
+
+Minimal structure:
+
 ```markdown
 # <Project Name>
 
 <One-line description>
 
-## Requirements
+- **Live URL:** `https://...` (if applicable)
 
-- PHP 8.x+
-- Composer
-- Node.js
-- [Laravel Herd](https://herd.laravel.com)
+---
 
 ## Installation
 
+**Requirements:** PHP 8.x+, Composer, Node.js, [Laravel Herd](https://herd.laravel.com)
+
 ​```bash
-git clone <repo-url>
-cd <project-name>
-composer install
-npm install
+# 1. Clone and install
+git clone <repo-url> && cd <project-name>
+composer install && npm install
+
+# 2. Configure environment
 cp .env.example .env
 touch database/database.sqlite
 php artisan key:generate
 git config core.hooksPath .githooks
 ​```
+
+---
 
 ## Testing
 
@@ -75,11 +81,17 @@ git config core.hooksPath .githooks
 php artisan test --compact
 ​```
 
+---
+
 ## Deployment
+
+Requires `.env.deploy` (copy from `.env.deploy.example`):
 
 ​```bash
 ./deploy.sh
 ​```
+
+---
 
 ## License
 
@@ -117,42 +129,87 @@ SOFTWARE.
 ```markdown
 # Contributing
 
-## Workflow
+Contributions are welcome — bug reports, improvements, and new features.
 
-Every change follows the OpenSpec workflow on its own feature branch:
+## Development Workflow
 
-1. **Propose** — `/opsx:propose` creates `proposal.md`, `specs/`, `design.md`, `tasks.md`
-2. **Implement** — `/opsx:apply` works through tasks (TDD: tests before code)
-3. **Review** — laravel-simplifier agent, then manual review
-4. **Archive** — `/opsx:archive` closes the change and merges specs
+This project uses [OpenSpec](https://github.com/fission-ai/openspec) for structured change management.
+Every new feature or significant change **must start with a proposal** — never implement directly.
 
-See `docs/dev-setup.md` for the complete setup and conventions.
+### Required Tools
 
-## Branches
+- PHP 8.x, Composer, Node.js
+- [OpenSpec CLI](https://github.com/fission-ai/openspec): `npm install -g @fission-ai/openspec`
+- [Claude Code](https://claude.ai/code) (recommended — skills are pre-configured in `.claude/`)
+
+### Feature Branch Convention
+
+​```bash
+git checkout -b feat/<change-name>   # e.g. feat/card-filtering
+​```
+
+No squash merges — full history stays on `main`.
+
+### Workflow per Change
+
+​```bash
+# 1. Create a feature branch
+git checkout -b feat/<change-name>
+
+# 2. Propose the change (generates proposal, specs, design, tasks)
+/opsx:propose
+
+# 3. Commit the artifacts before implementing
+git add openspec/ && git commit -m "docs(<change-name>): add proposal, design and tasks"
+
+# 4. Implement (TDD — tests first)
+/opsx:apply
+
+# 4a. Human review — don't proceed until approved
+
+# 5. Archive the change
+/opsx:archive
+
+# 6. Rebase onto main before merging
+git fetch origin && git rebase origin/main
+
+# 7. Merge (no squash)
+git checkout main && git merge feat/<change-name>
+​```
+
+Use the change name as the commit scope on every commit on that branch:
 
 ​```
-feat/<change-name>      # e.g. feat/import-cards-command
-​```
-
-No squash merges — full history on `main`.
-
-## Commits
-
-Conventional Commits, with the change name as scope on feature branches:
-
-​```
-docs(my-feature): add proposal, design and tasks
-feat(my-feature): add the new thing
-fix(my-feature): correct edge case
-refactor(my-feature): apply review feedback
-docs(my-feature): archive change
+docs(card-filtering): add proposal, design and tasks
+feat(card-filtering): add color filter to cards endpoint
+fix(card-filtering): correct empty result handling
+docs(card-filtering): archive change
 ​```
 
 Write `feat` and `fix` messages as user-facing descriptions — they appear in the changelog.
 
-## Testing
+## TDD
 
-TDD — write tests first. The pre-commit hook blocks commits when tests fail.
+Tests are written **before** implementation. A pre-commit hook enforces this — commits are blocked when tests fail.
+
+​```bash
+php artisan test --compact
+php artisan test --compact --filter=CardTest
+​```
+
+## Code Style
+
+[Laravel Pint](https://laravel.com/docs/pint) is used for formatting. Run it before committing:
+
+​```bash
+vendor/bin/pint --dirty
+​```
+
+Coding standards follow the [Spatie PHP/Laravel Guidelines](docs/spatie-guidelines.md).
+
+## Reporting Issues
+
+Open a GitHub issue with a clear description of the problem and steps to reproduce.
 ```
 
 ### CHANGELOG.md + git-cliff
