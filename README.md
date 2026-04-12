@@ -1,5 +1,7 @@
 # yohohoho
 
+![CI](https://github.com/ditshej/yohohoho/actions/workflows/ci.yml/badge.svg)
+
 Reference Laravel project documenting the conventions, tooling, and workflow for building Laravel applications with Claude Code and OpenSpec.
 
 ## What's in here
