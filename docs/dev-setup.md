@@ -944,6 +944,17 @@ jobs:
           extensions: mbstring, sqlite3
           coverage: none
 
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist
 
@@ -970,6 +981,17 @@ jobs:
           extensions: mbstring
           coverage: none
 
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist
 
@@ -981,6 +1003,7 @@ jobs:
 
 - **Two parallel jobs** (`tests` + `lint`) — a lint failure doesn't hide test results and vice versa
 - **`shivammathur/setup-php`** — de-facto standard for PHP on GitHub Actions
+- **Composer cache** — speeds up repeated runs via `actions/cache@v4` keyed on `composer.lock`
 - **SQLite** — matches local dev, no external services needed
 - **Triggers on all pushes and PRs** — catches broken commits immediately, shows status on PRs
 
