@@ -915,6 +915,87 @@ Reference: `op-cards-php/openspec/AGENT_MISSION.md`
 
 ---
 
+## 19. GitHub Actions CI
+
+Add a CI workflow so tests and code style are enforced on every push and PR — not just locally via pre-commit hooks.
+
+### Workflow File
+
+Create `.github/workflows/ci.yml`:
+
+```yaml
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, sqlite3
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Prepare database
+        run: |
+          touch database/database.sqlite
+          cp .env.example .env
+          php artisan key:generate
+          php artisan migrate --force
+
+      - name: Run tests
+        run: php artisan test --compact
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Check code style
+        run: vendor/bin/pint --test
+```
+
+**Key design choices:**
+
+- **Two parallel jobs** (`tests` + `lint`) — a lint failure doesn't hide test results and vice versa
+- **`shivammathur/setup-php`** — de-facto standard for PHP on GitHub Actions
+- **SQLite** — matches local dev, no external services needed
+- **Triggers on all pushes and PRs** — catches broken commits immediately, shows status on PRs
+
+### README Badge
+
+Add a CI status badge to the top of `README.md`:
+
+```markdown
+![CI](https://github.com/<owner>/<repo>/actions/workflows/ci.yml/badge.svg)
+```
+
+Replace `<owner>/<repo>` with the actual GitHub repository path.
+
+---
+
 ## Open TODOs
 
 - [ ] **`/new-laravel-project` skill** — Once this dev-setup is stable, create a Claude Code skill that automates Sections 1–7 and 10–11 for new projects (composer create-project, SQLite, project files, OpenSpec init, pre-commit hook, ArchTest, CLAUDE.md boilerplate, .gitignore).
