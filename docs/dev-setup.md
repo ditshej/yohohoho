@@ -1027,6 +1027,23 @@ Add a CI status badge to the top of `README.md`:
 
 Replace `<owner>/<repo>` with the actual GitHub repository path.
 
+### Branch Protection (GitHub Ruleset)
+
+After the CI workflow has run at least once, configure a branch ruleset on GitHub (Settings → Rules → Rulesets → New branch ruleset):
+
+1. **Ruleset Name:** `main-protection`
+2. **Enforcement status:** Active
+3. **Target branches:** Include by pattern → `main`
+4. **Branch rules:**
+   - **Require a pull request before merging** (Required approvals: 0 for solo projects)
+   - **Require status checks to pass** → Add checks: `tests`, `lint`
+   - **Allowed merge methods:** Rebase only (no squash, no merge commits)
+5. **Bypass list:** Leave empty (even admins go through PRs)
+
+> **Note:** The status checks `tests` and `lint` only appear in the dropdown after the workflow has run at least once on `main`.
+
+Also enable **Settings → General → "Automatically delete head branches"** so merged PR branches are cleaned up on GitHub.
+
 ---
 
 ## Open TODOs
