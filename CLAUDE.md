@@ -234,7 +234,11 @@ openspec new change "<change-name>"
 git push -u origin feat/<change-name>
 gh pr create --title "feat(<change-name>): <description>"
 # → CI must pass (tests + lint), then rebase-merge via GitHub
-# → Delete remote branch after merge
+
+# 8. Merge and cleanup
+gh pr merge --rebase --delete-branch
+git checkout main && git pull
+git branch -d feat/<change-name>
 ```
 
 ### Resulting History on main
