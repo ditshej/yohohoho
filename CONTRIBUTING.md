@@ -49,6 +49,11 @@ git fetch origin && git rebase origin/main
 git push -u origin feat/<change-name>
 gh pr create --title "feat(<change-name>): <description>"
 # → CI must pass (tests + lint), then rebase-merge via GitHub
+
+# 8. Merge and cleanup
+gh pr merge --rebase --delete-branch
+git checkout main && git pull
+git branch -d feat/<change-name>
 ```
 
 Use the change name as the commit scope on every commit on that branch:
