@@ -52,8 +52,7 @@ gh pr create --title "feat(<change-name>): <description>"
 
 # 8. Merge and cleanup
 gh pr merge --rebase --delete-branch
-git checkout main && git pull
-git branch -d feat/<change-name>
+git checkout main && git pull && git remote prune origin
 ```
 
 Use the change name as the commit scope on every commit on that branch:
