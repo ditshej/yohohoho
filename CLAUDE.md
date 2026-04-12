@@ -183,7 +183,7 @@ All project artifacts are written in **English**:
 
 **Rule:** Every new feature or major change ALWAYS starts with `/opsx:propose` — never implement directly, not even in plan mode. Implementation with `/opsx:apply` may only begin after the propose commit.
 
-Every OpenSpec change gets its own feature branch. No squash merge — the full history stays on `main`.
+Every OpenSpec change gets its own feature branch. No squash merge — the full history stays on `main`. No direct push to `main` — always via PR with CI passing.
 
 ### Branch Naming Convention
 
@@ -230,11 +230,11 @@ openspec new change "<change-name>"
 # /opsx:archive — close change, merge specs
 # → Commit: "docs(<change-name>): archive change"
 
-# 7. Merge to main (no squash!)
-git checkout main
-git merge feat/<change-name>
-git push
-git branch -d feat/<change-name>
+# 7. Push and create PR (rebase merge, no squash!)
+git push -u origin feat/<change-name>
+gh pr create --title "feat(<change-name>): <description>"
+# → CI must pass (tests + lint), then rebase-merge via GitHub
+# → Delete remote branch after merge
 ```
 
 ### Resulting History on main

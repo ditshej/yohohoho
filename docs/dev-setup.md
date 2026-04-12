@@ -480,7 +480,7 @@ This test is automatically enforced via the pre-commit hook — a command withou
 
 ## 7. Git + OpenSpec Feature Branch Flow
 
-Every OpenSpec change gets its own feature branch. No squash merge — the full history stays on `main`.
+Every OpenSpec change gets its own feature branch. No squash merge — the full history stays on `main`. No direct push to `main` — always via PR with CI passing.
 
 ### Branch Naming Convention
 
@@ -521,18 +521,16 @@ openspec new change "<change-name>"
 #     - How to review manually (git diff, which pages/endpoints to test)
 #   → Wait for user OK before archiving
 
-# Keep feature branch current: rebase instead of merge
-git fetch origin && git rebase origin/main
-
 # 6. Archiving
 # /opsx:archive — close change, merge specs
 # → Commit: "docs(<change-name>): archive change"
 
-# 7. Merge to main (no squash!)
-git checkout main
-git merge feat/<change-name>
-git push
-git branch -d feat/<change-name>
+# 7. Push and create PR (rebase merge, no squash!)
+git fetch origin && git rebase origin/main
+git push -u origin feat/<change-name>
+gh pr create --title "feat(<change-name>): <description>"
+# → CI must pass (tests + lint), then rebase-merge via GitHub
+# → Delete remote branch after merge
 ```
 
 ### Resulting History on main
@@ -547,7 +545,7 @@ git branch -d feat/<change-name>
 * docs(pack-and-card-models): add proposal, design and tasks
 ```
 
-Each feature follows: Explore → Propose → Implement → Verify → AI Review → Human Review → Archive.
+Each feature follows: Explore → Propose → Implement → Verify → AI Review → Archive → PR → Merge.
 Use the change name as commit scope for every commit on that branch.
 Multiple commits per phase are fine — commit as often as makes sense (feat, fix, test, refactor, etc.).
 
@@ -928,7 +926,9 @@ name: CI
 
 on:
   push:
+    branches: [main]
   pull_request:
+    branches: [main]
 
 jobs:
   tests:
@@ -1005,7 +1005,7 @@ jobs:
 - **`shivammathur/setup-php`** — de-facto standard for PHP on GitHub Actions
 - **Composer cache** — speeds up repeated runs via `actions/cache@v4` keyed on `composer.lock`
 - **SQLite** — matches local dev, no external services needed
-- **Triggers on all pushes and PRs** — catches broken commits immediately, shows status on PRs
+- **Triggers on PRs to `main` + pushes to `main`** — PRs are the gate, push-trigger is the safety net after merge
 
 ### README Badge
 
