@@ -533,9 +533,10 @@ gh pr create --title "feat(<change-name>): <description>"
 
 # 8. Merge and cleanup
 gh pr merge --rebase --delete-branch
-git checkout main && git pull
-git branch -d feat/<change-name>
+git checkout main && git pull && git remote prune origin
 ```
+
+> `--delete-branch` deletes the remote branch on GitHub. `git remote prune origin` removes stale remote-tracking refs locally. The local branch is cleaned up automatically by `gh pr merge`.
 
 ### Resulting History on main
 
