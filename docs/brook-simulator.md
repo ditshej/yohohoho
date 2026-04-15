@@ -2,7 +2,7 @@
 
 ## Vision
 
-A web tool that simulates how deck and trash size change turn by turn when playing the Brook OP15 Leader in the One Piece TCG. Goal: find out which turn Brook "dies" — taking into account Brook's trash effect, DON!! costs, and cards with trash mechanics.
+A web tool that simulates how deck and trash size change turn by turn when playing the Brook OP15 Leader in the One Piece TCG. Goal: find out which turn Brook "dies" — taking into account Brook's trash effect, DON!! costs, and cards with trash mechanics. Plans are stateless and shareable via URL.
 
 ## Domain: One Piece TCG Rules
 
@@ -33,9 +33,9 @@ A web tool that simulates how deck and trash size change turn by turn when playi
 
 ### Trash Mechanics
 Cards can move cards in addition to the Brook effect:
-- **Deck → Trash** (trash_from_deck): speeds up the countdown
-- **Trash → Deck** (return_from_trash): slows down the countdown
-- **Deck → Hand** (draw): slightly speeds up the countdown
+- **Deck -> Trash** (trash_from_deck): speeds up the countdown
+- **Trash -> Deck** (return_from_trash): slows down the countdown
+- **Deck -> Hand** (draw): slightly speeds up the countdown
 
 ## Non-Goals
 
@@ -43,17 +43,29 @@ Cards can move cards in addition to the Brook effect:
 - No opponent simulation / combat
 - No authentication / multi-user
 - No individual card tracking (which specific card is where) — only counts
+- No deck builder / deck management
+- No manual card CRUD (create/store/destroy)
+- No database persistence for simulations
+- No ActionType Enum / DB-backed simulation turns
 
 ## Architecture Decisions
 
-1. **Counter-based simulation** — We track `deckSize`, `trashSize`, `handSize`, `donAvailable`, not which specific cards are where. The user defines what happens per turn, so no randomness needed.
-2. **DON!! tracking** — Cards can only be played if enough DON!! is available. Validation in the Turn Planner.
-3. **CardEffect as a separate concept** — Simulation-relevant effects are stored as structured data, not parsed from the effect text at runtime.
-4. **TDD** — Write tests first, then implement. Comprehensive test coverage.
-5. **Card data manual** — Cards are entered manually. A dedicated OPTCG API will be built as a separate project; this project is architected so it can consume that API later (CardImportService with swappable data source).
-6. **Alpine.js** for interactivity (Deck Builder, Turn Planner).
-7. **SQLite** — Single-user tool, no concurrency requirements.
-8. **No Auth** — Single-user tool.
+| # | Decision | Rationale |
+|---|----------|-----------|
+| 1 | Laravel + Blade | Existing stack |
+| 2 | Alpine.js | Lightweight reactivity for Turn Planner |
+| 3 | Pest | PHP unit tests for SimulationEngine |
+| 4 | Mobile-first | Full-Width Rows, Bottom Sheet on mobile |
+| 5 | API import | Card data from `op-cards.ditshej.ch` (live) |
+| 6 | URL-state | No DB needed; plans are shareable/bookmarkable |
+| 7 | No Deck Model | Cards placed directly in Turn Planner; no 50-card rule |
+| 8 | PHP Simulation | Engine in PHP, frontend only displays results |
+| 9 | Counter-based simulation | We track `deckSize`, `trashSize`, `handSize`, `donAvailable`, not which specific cards are where. The user defines what happens per turn, so no randomness needed. |
+| 10 | DON!! tracking | Cards can only be played if enough DON!! is available. Validation in the Turn Planner. |
+| 11 | CardEffect as separate concept | Simulation-relevant effects are stored as structured data, not parsed from the effect text at runtime. |
+| 12 | TDD | Write tests first, then implement. Comprehensive test coverage. |
+| 13 | SQLite | Single-user tool, no concurrency requirements. |
+| 14 | No Auth | Single-user tool. |
 
 ## Data Model
 
@@ -71,29 +83,6 @@ card_effects: id, card_id (FK), effect_type, amount (int), condition (text nulla
 ```
 Enum: `EffectType` (TrashFromDeck, ReturnFromTrash, Draw)
 
-### Deck
-```
-decks: id, name, description (nullable), timestamps
-```
-
-### DeckCard (Pivot)
-```
-deck_card: id, deck_id (FK), card_id (FK), quantity (1-4), timestamps
-unique index [deck_id, card_id]
-```
-
-### Simulation
-```
-simulations: id, deck_id (FK), name (nullable), going_first (bool), results (json), timestamps
-```
-
-### SimulationTurnAction (Play Plan)
-```
-simulation_turn_actions: id, simulation_id (FK), turn_number (int),
-                         action_type, card_id (FK nullable), sort_order (int), timestamps
-```
-Enum: `ActionType` (PlayCard, ActivateEffect, BrookTrash)
-
 ## Core Logic: SimulationEngine
 
 ```
@@ -106,44 +95,73 @@ Per turn:
      - trash_from_deck: deckSize -= X, trashSize += X
      - return_from_trash: trashSize -= X, deckSize += X
      - draw: deckSize -= X, handSize += X
-  5. End-of-Turn Check: deckSize <= 0 → turn plays out, Brook dies at the end of THIS turn
+  5. End-of-Turn Check: deckSize <= 0 -> turn plays out, Brook dies at the end of THIS turn
      (Other leaders die immediately when deck = 0, Brook finishes the turn)
 ```
 
 ## Services
 
-- `CardImportService` — Imports cards from JSON (vegapull format) or future external API
-- `DeckValidationService` — Validates 50-card rule, max 4 copies
-- `SimulationEngine` — Core simulation (run, processTurn)
-- `EffectResolver` — Resolves CardEffects into state changes
+- **CardImportService** — Imports cards from external API (`op-cards.ditshej.ch`)
+- **SimulationEngine** — Core simulation (run, processTurn)
+- **EffectResolver** — Resolves CardEffects into state changes
 
-## Controllers
+## Controllers / Routes
 
-- `CardsController` — index, create, store, show, destroy
-- `CardsImportController` — create (upload form), store (import)
-- `DecksController` — CRUD
-- `SimulationsController` — create, store, show
+| Controller | Actions | Notes |
+|---|---|---|
+| `CardsController` | `index`, `show` | No create/store/destroy |
+| `CardsImportController` | `create`, `store` | Upload form + import |
+| `CardApiController` | `index` (JSON) | Green/Black cards with CardEffects; filterable |
+| `SimulationApiController` | `store` (JSON) | Plan -> results (stateless POST) |
 
 ## UI Flow (Blade + Tailwind 4 + Alpine.js)
 
-1. **Cards** (`/cards`) — Card list with filters, import button, manual entry
-2. **Decks** (`/decks`) — Deck builder (search cards on left, deck on right, counter X/50)
-3. **Simulation** (`/simulations/create`) — Select deck, Turn Planner with DON!! budget display
-4. **Result** (`/simulations/{id}`) — Turn-by-turn deck/trash/DON!! progression, death turn marked
+1. **Cards** (`/cards`) — Card list with filters, import button
+2. **Turn Planner** (`/turn-planner`):
+   - Mobile-first, Full-Width Rows per turn
+   - Per turn: Deck/Trash counter, Draw, Brook toggle, DON!! (used/max), card slots
+   - Card picker: Bottom Sheet (mobile) / Sidebar (desktop)
+   - Filters: effect type, cost, category, text search
+   - Globals: 1st/2nd toggle, death-turn display
+   - Alpine.js + AJAX to Simulation API
+   - URL-state encoding for sharing/bookmarking
 
 ## Phases
 
 Each phase is implemented as its own OpenSpec Change (TDD: tests first).
 
-1. **Card System** — Enums, Card Model/Migration/Factory/Seeder, CardImportService, Controller, Views
-2. **Deck Builder** — Deck/DeckCard Models, DeckValidationService, Controller, Views with Alpine.js
-3. **Simulation Engine** — CardEffect Model, DTOs, SimulationEngine, EffectResolver, extensive tests
-4. **Simulation UI** — Simulation/TurnAction Models, Controller, Turn Planner, result view
-5. **Polish** — Dashboard, chart visualization, card images, responsive
+### Phase 1: Card System — DONE
 
-## External Dependency: OPTCG Card API
+Changes: card-system, card-import, card-management, api-import, ci-pipeline
 
-Will be built as a separate project (based on vegapull/Bandai scraping). This project is architected so it can consume that API later (CardImportService with swappable data source). Until then, cards are entered manually.
+### Phase 2: Card API
+
+- JSON endpoint for cards with CardEffects
+- Filtered to Green/Black (Brook-playable)
+- Supports: effect-type, cost, category, text-search filters
+
+### Phase 3: Simulation Engine
+
+- `SimulationEngine` service (turn-by-turn calculation)
+- `EffectResolver` service
+- DON!! curve (1st/2nd), Draw logic, Brook effect
+- API endpoint: POST plan -> JSON results (deck/trash/DON!! per turn, death-turn)
+- Comprehensive Pest tests
+
+### Phase 4: Turn Planner UI
+
+- Mobile-first layout, Full-Width Rows
+- Card Picker (Bottom Sheet / Sidebar)
+- Alpine.js integration with Simulation API
+- URL-state encoding/decoding
+
+### Phase 5: Polish
+
+- Defined once Phase 4 is complete
+
+## External Dependencies
+
+- `op-cards.ditshej.ch` — Card API, **already live**
 
 ## Verification
 
