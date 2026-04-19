@@ -45,7 +45,7 @@ git add openspec/ && git commit -m "docs(<change-name>): add proposal, design an
 /opsx:archive
 
 # 7. Clean up fixup commits and push
-git rebase -i --autosquash origin/main   # no-op if rebase.autosquash is set globally
+git fetch origin && git rebase -i --autosquash origin/main   # no-op if rebase.autosquash is set globally
 git push -u origin feat/<change-name>
 gh pr create --title "feat(<change-name>): <description>"
 # → CI must pass (tests + lint), then merge via GitHub ("Create a merge commit")

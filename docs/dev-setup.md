@@ -183,7 +183,7 @@ git add openspec/ && git commit -m "docs(<change-name>): add proposal, design an
 /opsx:archive
 
 # 8. Clean up fixup commits (if any) and push
-git rebase -i --autosquash origin/main   # no-op if no `fixup!` commits
+git fetch origin && git rebase -i --autosquash origin/main   # no-op if no `fixup!` commits
 git push -u origin feat/<change-name>
 
 # 9. Merge via GitHub (merge commit, not rebase-merge, not squash)
@@ -528,7 +528,7 @@ openspec new change "<change-name>"
 # → Commit: "docs(<change-name>): archive change"
 
 # 7. Clean up fixup commits and push
-git rebase -i --autosquash origin/main   # collapses `fixup!` commits; no-op otherwise
+git fetch origin && git rebase -i --autosquash origin/main   # collapses `fixup!` commits; no-op otherwise
 git push -u origin feat/<change-name>
 gh pr create --title "feat(<change-name>): <description>"
 # → CI must pass (tests + lint), then merge via GitHub ("Create a merge commit")

@@ -241,7 +241,7 @@ openspec new change "<change-name>"
 # → Commit: "docs(<change-name>): archive change"
 
 # 7. Clean up fixup commits and push
-git rebase -i --autosquash origin/main   # collapses `fixup!` commits; no-op otherwise
+git fetch origin && git rebase -i --autosquash origin/main   # collapses `fixup!` commits; no-op otherwise
 git push -u origin feat/<change-name>
 gh pr create --title "feat(<change-name>): <description>"
 # → CI must pass (tests + lint), then merge via GitHub ("Create a merge commit")
