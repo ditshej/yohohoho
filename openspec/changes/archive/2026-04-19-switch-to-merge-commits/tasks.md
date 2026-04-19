@@ -15,7 +15,7 @@
 ## 3. Verification & tooling
 
 - [x] 3.1 Run `vendor/bin/pint --dirty --format agent` (no-op expected; only docs changed) to confirm no style drift.
-- [ ] 3.2 Open PR from `feat/switch-to-merge-commits` into `main`. This PR is merged under the OLD rebase-merge rules (transition commit).
+- [x] 3.2 Open PR from `feat/switch-to-merge-commits` into `main`. This PR is merged under the OLD rebase-merge rules (transition commit).
 
 ## 4. GitHub configuration (manual, post-merge of this PR)
 
