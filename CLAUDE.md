@@ -168,16 +168,26 @@ This project has domain-specific skills available. You MUST activate the relevan
 
 </laravel-boost-guidelines>
 
-## Language Convention
+## Conventional Commits
 
-All project artifacts are written in **English**:
-- Code, variable names, class names
-- Comments and PHPDoc blocks
-- OpenSpec artifacts (proposal.md, specs, design.md, tasks.md)
-- Git commit messages
-- Documentation files
+Format: `<type>[optional scope]: <description>`
 
-**Conversation language with Claude remains German.**
+Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`
+
+- Scope optional in parentheses: `feat(auth): add login endpoint`
+- Breaking changes: `!` before the colon: `feat!: remove legacy API`
+- Description: imperative mood, lowercase, no trailing period
+- **OpenSpec changes:** use the change name as scope for every commit on that branch:
+  `docs(list-packs): add proposal, design and tasks`
+  `feat(list-packs): add packs() and pack() endpoints`
+  `refactor(list-packs): apply review feedback`
+  `docs(list-packs): archive change`
+
+## TDD
+
+- Write tests FIRST, then implement
+- No feature without tests
+- Pre-commit hook blocks commits when tests fail
 
 ## Git + OpenSpec Feature Branch Flow
 
