@@ -44,7 +44,8 @@
             "@php artisan migrate --force",
             "npm install",
             "npm run build",
-            "git config core.hooksPath .githooks"
+            "git config core.hooksPath .githooks",
+            "@php artisan boost:update --ansi"
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
