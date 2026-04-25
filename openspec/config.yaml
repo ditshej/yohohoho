@@ -19,6 +19,7 @@ context: |
     - Use config() helper, never env() outside config files
     - Typed properties over docblocks, constructor property promotion
     - kebab-case URLs, camelCase route names
+    - Prefer Collection methods and array functions over foreach/loops
     - Self-documenting code over comments
 
   ## Development Approach
