@@ -153,43 +153,24 @@ Merge commits (`--no-ff`) preserve each change as a single node on `main`. No sq
 ### Workflow per Change
 
 ​```bash
-# 0. Explore (optional)
-# /opsx:explore — investigate before proposing
-# → Present findings to user, wait for OK
-
-# 1. Create a feature branch
 git checkout -b feat/<change-name>
-
-# 2. Propose (generates proposal, specs, design, tasks)
-/opsx:propose
+/opsx:new <change-name>             # create skeleton
+/opsx:continue                      # repeat until isComplete: true
 git add openspec/ && git commit -m "docs(<change-name>): add proposal, design and tasks"
-# → Present proposal summary to user, wait for OK before implementing
-
-# 3. Implement (TDD — tests first)
-/opsx:apply
-
-# 4. Verify — checks Completeness, Correctness, Coherence against specs
-/opsx:verify
-# → Fix all CRITICALs before proceeding
-
-# 5. AI Review
-# Spawn laravel-simplifier (or php-library-reviewer) agents
-# → Fix critical findings, commit
-# → Present change summary + manual review instructions → wait for user OK
-
-# 6. Human review — don't proceed until approved
-
-# 7. Archive the change
+/opsx:apply                         # TDD — tests first
+/opsx:verify                        # fix all CRITICALs
+# AI Review (laravel-simplifier) — fix findings, commit
+/opsx:sync                          # merge delta specs into main specs
+git add openspec/ && git commit -m "docs(<change-name>): sync specs"
 /opsx:archive
-
-# 8. Clean up fixup commits (if any) and push
-git fetch origin && git rebase -i --autosquash origin/main   # no-op if no `fixup!` commits
+git add openspec/ && git commit -m "docs(<change-name>): archive change"
+git fetch origin && git rebase -i --autosquash origin/main
 git push -u origin feat/<change-name>
-
-# 9. Merge via GitHub (merge commit, not rebase-merge, not squash)
 gh pr create --title "feat(<change-name>): <description>"
 gh pr merge --merge --delete-branch
 ​```
+
+Express alternative: `/opsx:propose <change-name>` (or `/opsx:new` + `/opsx:ff`) generates all artifacts at once.
 
 Use the change name as the commit scope on every commit on that branch:
 
@@ -197,6 +178,7 @@ Use the change name as the commit scope on every commit on that branch:
 docs(card-filtering): add proposal, design and tasks
 feat(card-filtering): add color filter to cards endpoint
 fix(card-filtering): correct empty result handling
+docs(card-filtering): sync specs
 docs(card-filtering): archive change
 ​```
 
@@ -315,15 +297,26 @@ feat(card-management): add card browsing with filters and detail pages
 ## 3. Set up OpenSpec
 
 ```bash
-npm install -g @fission-ai/openspec
-openspec init
+# Install the CLI and init with Claude tools
+npx @fission-ai/openspec init --tools claude
+
+# Activate the full workflow profile with all 11 commands
+npx openspec config profile custom
+# → interactively select all workflows when prompted:
+#   propose, explore, new, continue, apply, ff, sync, archive, bulk-archive, verify, onboard
+
+# Force-refresh instruction files (skills + slash commands)
+npx openspec update --force
 ```
 
 This creates:
 - `openspec/config.yaml` — project config
 - `openspec/specs/` — long-lived project specs (populated by changes)
 - `openspec/changes/` — short-lived work packages
-- `.claude/skills/openspec-*` — skills for Claude Code Agents
+- `.claude/skills/openspec-*` — skills for Claude Code Agents (11 total)
+- `.claude/commands/opsx/` — slash commands (11 total, `delivery: both`)
+
+> **CLI Note:** OpenSpec should be added as a dev-dependency in `package.json` (not global). Skills and commands may show `openspec ...` — always run as `npx openspec ...`. See Section 10 for the `composer.json` setup script pattern.
 
 Fill `openspec/config.yaml` with project context:
 
@@ -363,22 +356,25 @@ rules:
     - Keep scope small — one concern per change, not an entire feature layer
 ```
 
-### OpenSpec Workflow
+### OpenSpec Workflow Commands
 
-Each change goes through 4 artifacts:
+| Command | What it does |
+|---|---|
+| `/opsx:explore` | Investigate options/tradeoffs (no artifacts, no code) |
+| `/opsx:new` | Create change skeleton — recommended first step |
+| `/opsx:continue` | Create the next artifact (one per call, loop until done) |
+| `/opsx:ff` | Fast-forward — create all remaining artifacts at once |
+| `/opsx:propose` | Express: skeleton + all artifacts in one step |
+| `/opsx:apply` | Implement tasks (TDD) |
+| `/opsx:verify` | Check Completeness/Correctness/Coherence |
+| `/opsx:sync` | Merge delta specs into main specs |
+| `/opsx:archive` | Move change to `openspec/changes/archive/YYYY-MM-DD-<name>/` |
+| `/opsx:bulk-archive` | Archive multiple changes at once |
+| `/opsx:onboard` | Guided walkthrough for new team members |
 
-```
-/openspec-propose     → proposal.md (WHY)
-                      → specs/*.md  (WHAT — requirements with WHEN/THEN scenarios)
-                      → design.md   (HOW — architecture decisions)
-                      → tasks.md    (TODO — checkboxes, tests before code)
-/openspec-apply-change → Implementation (work through tasks)
-/openspec-archive-change → Close change, sync specs to main specs
-```
+> **Rule 1:** Every new feature ALWAYS starts in the OpenSpec flow on its own `feat/<name>` branch — never implement directly, not even in plan mode. Recommended path: `/opsx:new` → `/opsx:continue`. Express path for small/clear changes: `/opsx:propose`.
 
-> **Rule 1:** Every new feature ALWAYS starts with `/opsx:propose` — never implement directly, not even in plan mode.
-
-> **Rule 2:** Commit immediately after `/opsx:propose` — before implementing:
+> **Rule 2:** Commit after all artifacts are complete (`isComplete: true` from `npx openspec status --json`) — before implementing:
 > `git add openspec/ && git commit -m "docs(<name>): add proposal, design and tasks"`
 
 ## 4. Spatie Guidelines
@@ -494,51 +490,64 @@ feat/<change-name>      # e.g. feat/import-cards-command
 
 ```bash
 # 0. Explore (optional)
-# /opsx:explore — investigate ideas and requirements before proposing
-# → CHECKPOINT: Present findings to user → wait for OK before proposing
+# /opsx:explore — investigate ideas and tradeoffs for this change
+# → CHECKPOINT: Present findings to user → wait for OK before continuing
 
 # 1. Create branch
 git checkout -b feat/<change-name>
 
-# 2. Propose
-openspec new change "<change-name>"
-# /opsx:propose — create proposal.md, specs/, design.md, tasks.md
-# → Commit: "docs(<change-name>): add proposal, design and tasks"
-# → CHECKPOINT: Present proposal summary → wait for OK before implementing
+# 2. Create change skeleton
+# /opsx:new <change-name>
+# → shows first artifact template
 
-# 3. Implementation (TDD)
-# /opsx:apply — work through tasks
+# 3. Build artifacts iteratively
+# /opsx:continue      # repeat until isComplete: true (check with: npx openspec status --json)
+# → CHECKPOINT: Present proposal summary → wait for OK before implementing
+git add openspec/ && git commit -m "docs(<change-name>): add proposal, design and tasks"
+
+# 4. Implementation (TDD)
+# /opsx:apply — work through tasks one by one
 # → Commit(s): "feat(<change-name>): ...", "test(<change-name>): ...", etc.
 
-# 4. Verify
+# 5. Verify
 # /opsx:verify — checks Completeness, Correctness, Coherence against specs
 # → Fix all CRITICALs before proceeding
 
-# 5. AI Review
+# 6. AI Review
 # laravel-simplifier Agent — automated review (spawn parallel subagents)
 # → Fix critical findings, commit: "refactor(<change-name>): apply review feedback"
 # → CHECKPOINT: Present change summary:
 #     - What changed (architecture, new/modified files)
 #     - Test results (N passed)
 #     - How to review manually (git diff, which pages/endpoints to test)
-#   → Wait for user OK before archiving
+#   → Wait for user OK before proceeding
 
-# 6. Archiving
-# /opsx:archive — close change, merge specs
-# → Commit: "docs(<change-name>): archive change"
+# 7. Sync specs
+# /opsx:sync — merge delta specs into main specs
+git add openspec/ && git commit -m "docs(<change-name>): sync specs"
 
-# 7. Clean up fixup commits and push
+# 8. Archive
+# /opsx:archive — mv → openspec/changes/archive/YYYY-MM-DD-<change-name>/
+git add openspec/ && git commit -m "docs(<change-name>): archive change"
+
+# 9. Clean up fixup commits and push
 git fetch origin && git rebase -i --autosquash origin/main   # collapses `fixup!` commits; no-op otherwise
 git push -u origin feat/<change-name>
 gh pr create --title "feat(<change-name>): <description>"
 # → CI must pass (tests + lint), then merge via GitHub ("Create a merge commit")
 
-# 8. Merge and cleanup
+# 10. Merge and cleanup
 gh pr merge --merge --delete-branch
 git checkout main && git pull && git remote prune origin
 ```
 
 > `--delete-branch` deletes the remote branch on GitHub. `git remote prune origin` removes stale remote-tracking refs locally. The local branch is cleaned up automatically by `gh pr merge`.
+
+**Express alternative** (when scope is clear — all artifacts in one step):
+
+```bash
+/opsx:propose <change-name>   # or: /opsx:new + /opsx:ff
+```
 
 ### Resulting History on main
 
@@ -546,6 +555,7 @@ git checkout main && git pull && git remote prune origin
 *   Merge pull request #43 from feat/import-cards-command
 |\
 | * docs(import-cards-command): archive change
+| * docs(import-cards-command): sync specs
 | * refactor(import-cards-command): apply review feedback
 | * feat(import-cards-command): add cards:import artisan command
 | * docs(import-cards-command): add proposal, design and tasks
@@ -553,6 +563,7 @@ git checkout main && git pull && git remote prune origin
 *   Merge pull request #42 from feat/pack-and-card-models
 |\
 | * docs(pack-and-card-models): archive change
+| * docs(pack-and-card-models): sync specs
 | * feat(pack-and-card-models): add Pack and Card models with migrations and factories
 | * docs(pack-and-card-models): add proposal, design and tasks
 |/
@@ -560,7 +571,7 @@ git checkout main && git pull && git remote prune origin
 
 Each OpenSpec change becomes one merge-commit node on `main`'s first-parent history. Use `git log --first-parent main` to see just the change-level nodes. Use `git log --graph --oneline` to see the full graph including feature-branch commits.
 
-Each feature follows: Explore → Propose → Implement → Verify → AI Review → Archive → PR → Merge.
+Each feature follows: Explore → New → Continue → Implement → Verify → Review → Sync → Archive → PR → Merge.
 Use the change name as commit scope for every commit on that branch.
 Multiple commits per phase are fine — commit as often as makes sense (feat, fix, test, refactor, etc.).
 
@@ -689,6 +700,8 @@ claude mcp list
 
 The Boost rules (database tools, doc search, Artisan guidance) are injected into Claude's context automatically when the MCP server is active. The project-level `CLAUDE.md` should additionally include skills activation rules and project-specific conventions.
 
+> **Important:** In projects using `laravel/boost`, `CLAUDE.md` (specifically the `<laravel-boost-guidelines>` block) is a **generated file** — it is rebuilt from `.ai/guidelines/*.md` by running `php artisan boost:install --guidelines`. Never edit the inline block directly; always edit the source files in `.ai/guidelines/` and regenerate. `CLAUDE.md` should be added to `.gitignore`.
+
 ## 10. Global `~/.claude/CLAUDE.md` (one-time, global)
 
 Create `~/.claude/CLAUDE.md` with universal rules that apply to **all** projects. This avoids duplicating them in every project's `CLAUDE.md`.
@@ -749,7 +762,8 @@ Recommended baseline:
       "Bash(php artisan*)",
       "Bash(composer test*)",
       "Bash(composer install*)",
-      "Bash(openspec*)"
+      "Bash(openspec*)",
+      "Bash(npx openspec*)"
     ]
   }
 }
@@ -871,92 +885,17 @@ Reference: [Safety Nets for Claude Code](https://cbox.dk/blog/safety-nets-for-cl
 
 ## 17. Optional: openspec/ROADMAP.md
 
-For projects with multiple planned changes, create `openspec/ROADMAP.md` to list them in implementation order. Each entry gets a short description and the files it will create or modify. This gives agents (and humans) a clear sequenced plan before any implementation begins.
+> **TBD — will be expanded in the next iteration** together with the Brainstorm / Align / Recap / Refactor framework. The pattern below is a placeholder based on earlier convention.
 
-Example structure:
-
-```markdown
-# Roadmap
-
-Planned changes in implementation order.
-
-## Change 1: `exception-hierarchy`
-
-Define the exception types the client throws.
-
-- `src/Exceptions/ApiException.php` — base exception
-- `src/Exceptions/AuthenticationException.php` — 401
-
-## Change 2: `http-client-core`
-
-Core HTTP client with Bearer-token auth and exception mapping.
-
-- `src/OpCardsClient.php`
-```
+For projects with multiple planned changes, create `openspec/ROADMAP.md` to list them in implementation order. Each entry gets a short description and the files it will create or modify.
 
 Reference: `op-cards-php/openspec/ROADMAP.md`
 
 ## 18. Optional: openspec/AGENT_MISSION.md
 
-For projects with a roadmap, `openspec/AGENT_MISSION.md` provides instructions that enable a Claude Code agent to autonomously work through the entire roadmap — one change at a time.
+> **TBD — will be expanded in the next iteration** together with the Brainstorm / Align / Recap / Refactor framework. The flow below is based on earlier convention and does not yet include `sync`, `recap`, or `refactor` steps.
 
-### Flow per Change
-
-```
-explore → propose → apply → verify → ai-review → human-review → archive
-```
-
-### Two Modes: Interactive vs. Autonomous
-
-**Interactive mode** (normal conversation): CHECKPOINTs are active — the agent pauses and waits for user OK at each gate.
-
-| After | Agent presents | User decides |
-|-------|----------------|--------------|
-| **explore** | Investigation findings — is the scope clear? | Proceed to propose? |
-| **propose** | Proposal summary (WHY, WHAT, non-goals) | Proceed to implement? |
-| **ai-review** | Change summary + manual review instructions | Proceed to archive? |
-
-**Autonomous mode** (AGENT_MISSION): Per-change CHECKPOINTs are skipped. The agent works through the entire roadmap without pausing. Instead, a mandatory stop is produced at the end of the session.
-
-### Mandatory Stop after Autonomous Session
-
-After completing all changes (or at the end of the session), the agent must:
-
-1. **Stop** — do not start another change
-2. **Present a full session summary:**
-
-```
-## Session Summary
-
-| Change        | Branch (deleted) | Commits               | Tests    |
-|---------------|------------------|-----------------------|----------|
-| change-name   | feat/change-name | docs · feat · docs    | 12 passed |
-| ...           | ...              | ...                   | ...      |
-
-## Review
-- All changes merged to main
-- Open PR: <url> (if applicable)
-- Review with: git log --oneline / git diff v<prev>..HEAD
-- Run tests: php artisan test --compact
-```
-
-3. **Open a GitHub PR (optional)** — if the project has a remote and a meaningful batch of changes warrants it:
-
-```bash
-gh pr create --title "<summary>" --body "<session summary>"
-```
-
-This is what enables long autonomous runs: the human reviews at the end (or on the PR), not during.
-
-### AGENT_MISSION.md Contents
-
-The file should define:
-- Working directory and all commands run from it
-- Mode: autonomous (checkpoints skipped, mandatory stop at end)
-- The exact workflow steps per change (branch → propose → apply → verify → ai-review → archive → merge)
-- The change sequence from ROADMAP.md with dependencies noted
-- TDD rules, coding standards, and when to pause vs. proceed autonomously
-- Final output format (session summary table + review instructions)
+For projects with a roadmap, `openspec/AGENT_MISSION.md` provides instructions that enable a Claude Code agent to autonomously work through the entire roadmap — one change at a time. The updated flow (post Brainstorm/Align iteration) will be: `explore → new → continue → apply → verify → ai-review → recap → refactor → sync → archive`.
 
 Reference: `op-cards-php/openspec/AGENT_MISSION.md`
 

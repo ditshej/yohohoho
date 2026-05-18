@@ -4,7 +4,7 @@ Contributions are welcome — bug reports, improvements, and new features.
 
 ## Development Workflow
 
-This project uses [OpenSpec](https://github.com/fission-ai/openspec) for structured change management. Every new feature or significant change **must start with a proposal** — never implement directly.
+This project uses [OpenSpec](https://github.com/fission-ai/openspec) for structured change management. Every new feature or significant change **must start in the OpenSpec flow on its own `feat/<name>` branch** — never implement directly.
 
 ### Required Tools
 
@@ -32,36 +32,34 @@ Merge commits (`--no-ff`) preserve each change as one node on `main`. No squash,
 
 ### Workflow per Change
 
+Recommended path (iterative):
+
 ```bash
-# 1. Create a feature branch
 git checkout -b feat/<change-name>
-
-# 2. Propose the change (generates proposal, specs, design, tasks)
-/opsx:propose
-
-# 3. Commit the artifacts before implementing
+/opsx:new <change-name>             # creates skeleton
+/opsx:continue                      # repeat until all artifacts done (isComplete: true)
 git add openspec/ && git commit -m "docs(<change-name>): add proposal, design and tasks"
-
-# 4. Implement (TDD — tests first)
-/opsx:apply
-
-# 5. Verify — checks Completeness, Correctness, Coherence against specs
-/opsx:verify
-# → Fix all CRITICALs before proceeding
-
-# 6. Archive the change
+/opsx:apply                         # TDD — implement tasks one by one
+/opsx:verify                        # fix all CRITICALs
+# AI Review (laravel-simplifier)
+/opsx:sync                          # merge delta specs into main specs
+git add openspec/ && git commit -m "docs(<change-name>): sync specs"
 /opsx:archive
-
-# 7. Clean up fixup commits and push
-git fetch origin && git rebase -i --autosquash origin/main   # no-op if rebase.autosquash is set globally
+git add openspec/ && git commit -m "docs(<change-name>): archive change"
+git fetch origin && git rebase -i --autosquash origin/main
 git push -u origin feat/<change-name>
 gh pr create --title "feat(<change-name>): <description>"
-# → CI must pass (tests + lint), then merge via GitHub ("Create a merge commit")
-
-# 8. Merge and cleanup
 gh pr merge --merge --delete-branch
 git checkout main && git pull && git remote prune origin
 ```
+
+Express alternative (scope is clear, all artifacts in one step):
+
+```bash
+/opsx:propose <change-name>   # or: /opsx:new + /opsx:ff
+```
+
+See `.ai/guidelines/openspec-flow.md` for the full workflow with all commands, checkpoints, and commit conventions.
 
 Use the change name as the commit scope on every commit on that branch:
 
@@ -69,6 +67,7 @@ Use the change name as the commit scope on every commit on that branch:
 docs(card-filtering): add proposal, design and tasks
 feat(card-filtering): add color filter to cards endpoint
 fix(card-filtering): correct empty result handling
+docs(card-filtering): sync specs
 docs(card-filtering): archive change
 ```
 
