@@ -1,7 +1,7 @@
-## ADDED Requirements
+## MODIFIED Requirements
 
 ### Requirement: Brainstorm Skill
-A `/brainstorm` slash command and Claude Code skill that facilitates open-ended product ideation before any OpenSpec change is started.
+The system SHALL provide a `/brainstorm` slash command and Claude Code skill that facilitates open-ended product ideation before any OpenSpec change is started.
 
 #### Scenario: Start brainstorm with a topic
 - **WHEN** user runs `/brainstorm` with an optional topic or description

@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Recap Skill
-A `/recap` slash command and Claude Code skill for the post-review step. After AI review and before sync/archive, the AI explains what was built in a fixed three-section format.
+The system SHALL provide a `/recap` slash command and Claude Code skill for the post-review step. After AI review and before sync/archive, the AI MUST explain what was built in a fixed three-section format.
 
 #### Scenario: Generate recap for the current change
 - **WHEN** user runs `/recap` (optionally with a change name)

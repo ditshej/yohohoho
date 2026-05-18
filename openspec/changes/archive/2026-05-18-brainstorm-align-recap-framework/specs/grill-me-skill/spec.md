@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Grill-me Skill
-A `/grill-me` slash command and Claude Code skill for the Align phase. AI interviews the developer one question at a time to achieve shared understanding of a plan or design.
+The system SHALL provide a `/grill-me` slash command and Claude Code skill for the Align phase. The AI MUST interview the developer one question at a time to achieve shared understanding of a plan or design.
 
 #### Scenario: Interview with a plan as context
 - **WHEN** user runs `/grill-me` with a description or after sharing a proposal/design
