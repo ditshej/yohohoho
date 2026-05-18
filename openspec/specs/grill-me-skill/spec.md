@@ -1,7 +1,8 @@
 # grill-me-skill Specification
 
 ## Purpose
-TBD - created by archiving change brainstorm-align-recap-framework. Update Purpose after archive.
+
+Defines the `/grill-me` slash command and skill for the Align phase. The skill interviews the developer one question at a time to reach shared understanding of a plan or design. It reads `openspec/product/<topic>/briefing.md` if present and persists the session output to `openspec/product/<topic>/aligned.md`.
 ## Requirements
 ### Requirement: Grill-me Skill
 The system SHALL provide a `/grill-me` slash command and Claude Code skill for the Align phase. The AI MUST interview the developer one question at a time to achieve shared understanding of a plan or design.

@@ -39,7 +39,7 @@ Start with expansive, open-ended questions — do not evaluate ideas yet. Only a
 
 4. **Produce the product briefing**
 
-   Write a markdown summary and show it inline:
+   Show the briefing inline AND write it to `openspec/product/<topic>/briefing.md` using the Write tool. Derive `<topic>` from the input (kebab-case). If no topic is available, ask before writing.
 
    ```markdown
    # Product Briefing: <topic>
@@ -61,10 +61,12 @@ Start with expansive, open-ended questions — do not evaluate ideas yet. Only a
    - <anything still unclear>
    ```
 
+   State the file path before writing: "Writing briefing to `openspec/product/<topic>/briefing.md`…"
+
 5. **Bridge to next step**
 
    After producing the briefing, suggest:
-   > "Use this briefing to create a `openspec/ROADMAP.md` with the capabilities as changes, then start each change with `/opsx:new <name>`. Or run `/grill-me` to stress-test the plan before proceeding."
+   > "Briefing saved to `openspec/product/<topic>/briefing.md`. Next: run `/clear` to reset context, then `/grill-me <topic>` to align on decisions — or create `openspec/ROADMAP.md` with these capabilities and start each change with `/opsx:new <name>`."
 
 **Guardrails**
 - Do NOT create any OpenSpec changes or artifacts during brainstorm

@@ -5,16 +5,66 @@
 Before starting the first OpenSpec change on a new product or roadmap block, run the product-level phase:
 
 ```
-/brainstorm         # divergent ideation → product briefing document
-/grill-me           # align phase: AI interviews you one question at a time → shared-understanding document
-[manual step]       # vertical slicing: break the vision into OpenSpec changes → openspec/ROADMAP.md
+/brainstorm <topic>   # divergent ideation → writes openspec/product/<topic>/briefing.md
+/clear                # reset context between phases (briefing persists in the file)
+/grill-me <topic>     # align phase: reads briefing, interviews you → writes openspec/product/<topic>/aligned.md
+/clear                # reset context again
+[manual step]         # vertical slicing: create openspec/ROADMAP.md from the capabilities in the briefing
+```
+
+### Product Artifact Storage
+
+Each product-level phase writes its output to the repo so it survives `/clear` and can be read by the next phase:
+
+```
+openspec/product/
+└── <topic>/
+    ├── briefing.md     # /brainstorm output (problem, vision, constraints, rough capabilities)
+    └── aligned.md      # /grill-me output (agreed decisions, resolved questions)
+```
+
+`<topic>` is a kebab-case name for the product or roadmap block (e.g., `card-management`, `deck-builder`). Commit the files after each phase.
+
+### Context Reset Between Phases
+
+Run `/clear` between Brainstorm, Align, and Roadmap phases to avoid context pollution — each phase should start fresh. The skills read previous artifacts from `openspec/product/<topic>/` rather than relying on chat history.
+
+### ROADMAP.md Format
+
+`openspec/ROADMAP.md` is the output of the vertical slicing step. Each item maps to one OpenSpec change:
+
+```markdown
+# Roadmap
+
+## In Progress
+- [ ] <change-name> — <one-line description> (briefing: openspec/product/<topic>/)
+
+## Planned
+- [ ] <change-name> — <one-line description>
+
+## Done
+- [x] <change-name> — <description> (archived: openspec/changes/archive/YYYY-MM-DD-<name>/)
 ```
 
 Checkpoints:
-- **After brainstorm**: Share the product briefing. Does the scope make sense? Proceed to grill-me?
-- **After grill-me**: Share the shared-understanding summary. Are decisions aligned? Proceed to roadmap?
+- **After brainstorm**: Briefing in `openspec/product/<topic>/briefing.md`. Does the scope make sense? Proceed to grill-me?
+- **After grill-me**: Aligned doc in `openspec/product/<topic>/aligned.md`. Are decisions aligned? Proceed to roadmap?
+- **After roadmap**: `openspec/ROADMAP.md` committed. Each capability sliced into a named change? Start `/opsx:new <first-change>`.
 
 These steps are optional but recommended when starting a new product increment. For small, well-understood changes you can skip directly to `/opsx:new`.
+
+### Model Selection
+
+Thinking-heavy commands run on Opus 4.7; implementation commands use the session default (Sonnet):
+
+| Command | Model |
+|---|---|
+| `/brainstorm`, `/grill-me`, `/recap`, `/opsx:explore` | Opus 4.7 (pinned via `model: opus` in frontmatter) |
+| `/opsx:apply`, `/opsx:verify`, `/opsx:sync`, `/opsx:archive`, others | Session default (Sonnet) |
+
+### Autonomous Mode (AGENT_MISSION)
+
+If `openspec/AGENT_MISSION.md` exists at session start, read it and follow its instructions. It defines which roadmap to work through, whether to skip per-change checkpoints, and the mandatory stop format. A copy-paste template is available at `openspec/AGENT_MISSION.md.example`.
 
 **Rule:** Every new feature or major change ALWAYS starts in the OpenSpec flow on its own `feat/<change-name>` branch — never implement directly, not even in plan mode.
 

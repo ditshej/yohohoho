@@ -7,7 +7,7 @@ compatibility: No external tools required.
 
 Interview the user relentlessly about every aspect of the plan until we reach a shared understanding. Walk down each branch of the decision tree, resolving dependencies between decisions one by one.
 
-**Input**: An optional plan, proposal, or design description after `/grill-me`. If empty, ask the user what plan to stress-test. Can also reference an existing `proposal.md` or brainstorm briefing.
+**Input**: An optional topic name, plan, or design description after `/grill-me`. If empty, ask the user what plan to stress-test. Can also reference an existing `proposal.md` or brainstorm briefing.
 
 **Steps**
 
@@ -15,7 +15,11 @@ Interview the user relentlessly about every aspect of the plan until we reach a 
 
    Ask: "What plan or design do you want to think through together? Paste it, describe it, or point me to a file."
 
-2. **Build the decision tree**
+2. **Load prior context**
+
+   If a topic name was provided and `openspec/product/<topic>/briefing.md` exists, read it silently and use it as the starting context. Do not ask the user to re-describe the problem — summarise what you read in one sentence and move on.
+
+3. **Build the decision tree**
 
    Read any referenced documents or code. Identify the key decisions and open questions across:
    - Architecture and technical approach
@@ -24,7 +28,7 @@ Interview the user relentlessly about every aspect of the plan until we reach a 
    - Error handling and edge cases
    - Dependencies and integrations
 
-3. **Interview — one question at a time**
+4. **Interview — one question at a time**
 
    For each question:
    - Ask it clearly and directly
@@ -34,9 +38,9 @@ Interview the user relentlessly about every aspect of the plan until we reach a 
 
    **If a question can be answered by exploring the codebase**: explore it yourself and answer it rather than asking.
 
-4. **Produce shared-understanding summary**
+5. **Produce shared-understanding summary**
 
-   When all major branches are resolved, write a summary and show it inline:
+   Show the summary inline AND write it to `openspec/product/<topic>/aligned.md` using the Write tool. State the file path before writing: "Writing shared-understanding to `openspec/product/<topic>/aligned.md`…"
 
    ```markdown
    # Shared Understanding: <plan name>
@@ -52,10 +56,10 @@ Interview the user relentlessly about every aspect of the plan until we reach a 
    - <anything still unresolved>
    ```
 
-5. **Bridge to next step**
+6. **Bridge to next step**
 
    After producing the summary, suggest:
-   > "Shared understanding established. Ready to create the change — run `/opsx:new <name>` to start, or `/opsx:propose <name>` for a one-step setup."
+   > "Shared understanding saved to `openspec/product/<topic>/aligned.md`. Run `/clear` to reset context, then use the aligned decisions to create `openspec/ROADMAP.md` and start each change with `/opsx:new <name>`."
 
 **Guardrails**
 - Ask ONE question at a time — never a list

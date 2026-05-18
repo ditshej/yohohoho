@@ -1,7 +1,8 @@
 # brainstorm-skill Specification
 
 ## Purpose
-TBD - created by archiving change brainstorm-align-recap-framework. Update Purpose after archive.
+
+Defines the `/brainstorm` slash command and skill for product-level ideation before any OpenSpec change is started. The skill facilitates divergent → convergent thinking and persists the output to `openspec/product/<topic>/briefing.md` so it survives context resets and is readable by subsequent product-level phases.
 ## Requirements
 ### Requirement: Brainstorm Skill
 The system SHALL provide a `/brainstorm` slash command and Claude Code skill that facilitates open-ended product ideation before any OpenSpec change is started.

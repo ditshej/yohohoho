@@ -3,76 +3,15 @@
 > Copy this file to `openspec/AGENT_MISSION.md` and customize it for your project.
 > Remove this note when done.
 
-This file enables a Claude Code agent to autonomously work through the roadmap in `openspec/ROADMAP.md`, one change at a time, without per-change user checkpoints.
-
-## Working Directory
-
-All commands run from: `<project-root>`
+Read `openspec/ROADMAP.md` and work through each change in order using the flow documented in CLAUDE.md (openspec-flow section).
 
 ## Mode: Autonomous
 
-Per-change CHECKPOINTs are **skipped**. The agent proceeds through the entire roadmap without pausing. A **mandatory stop** is produced at the end of the session.
-
-## Flow per Change
-
-For each change in `openspec/ROADMAP.md`, in order:
-
-```bash
-# 1. Create branch
-git checkout -b feat/<change-name>
-
-# 2. Create skeleton and artifacts
-npx openspec new change "<change-name>"
-# /opsx:new + /opsx:continue (loop until isComplete: true)
-# OR: /opsx:propose <change-name> for a one-step fast-forward
-
-# 3. Commit artifacts
-git add openspec/ && git commit -m "docs(<change-name>): add proposal, design and tasks"
-
-# 4. Implement (TDD — tests first)
-# /opsx:apply — work through tasks one by one
-# → commit each meaningful step
-
-# 5. Verify
-# /opsx:verify — fix all CRITICALs
-
-# 6. AI Review
-# Spawn laravel-simplifier agent — fix critical findings
-# → commit: "refactor(<change-name>): apply review feedback"
-
-# 7. Recap
-# /recap — three-section explanation with Mermaid diagram
-
-# 8. Refactor
-# /simplify with these three questions:
-#   - "What is the smallest safe change that makes this codebase better?"
-#   - "Can a new developer follow the flow without mental jumps?"
-#   - "Which refactoring steps preserve behavior but improve structure?"
-# → commit if changes made: "refactor(<change-name>): <improvement>"
-
-# 9. Sync + Archive
-# /opsx:sync → git add openspec/ && git commit -m "docs(<change-name>): sync specs"
-# /opsx:archive → git add openspec/ && git commit -m "docs(<change-name>): archive change"
-
-# 10. PR + Merge
-git rebase -i --autosquash origin/main
-git push -u origin feat/<change-name>
-gh pr create --title "feat(<change-name>): <description>"
-gh pr merge --merge --delete-branch
-git checkout main && git pull && git remote prune origin
-```
-
-## Rules
-
-- All tests must pass before any commit (pre-commit hook enforces this)
-- TDD: write the test first, then implement
-- Keep each change focused — one concern, max 15 tasks
-- Use `npx openspec` for all OpenSpec CLI calls (local dependency, not global)
-- If a change is blocked or unclear, STOP and describe the blocker — do not guess
+Skip per-change CHECKPOINTs. Proceed through the entire roadmap without pausing.
 
 ## Mandatory Stop
 
-After completing all changes (or when blocked), produce this summary:
+After completing all changes (or when blocked), produce this summary and stop:
 
 ```
 ## Session Summary
@@ -80,12 +19,6 @@ After completing all changes (or when blocked), produce this summary:
 | Change | Branch (deleted) | Commits | Tests |
 |--------|-----------------|---------|-------|
 | <name> | feat/<name>     | N       | N passed |
-
-## Review
-- All changes merged to main
-- Run: php artisan test --compact
-- Review: git log --oneline --graph main
-- Open PRs: <url if any>
 ```
 
-Then stop. Do not start another change unless explicitly asked.
+Do not start another change unless explicitly asked.
