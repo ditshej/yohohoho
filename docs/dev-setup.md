@@ -549,6 +549,8 @@ git checkout main && git pull && git remote prune origin
 /opsx:propose <change-name>   # or: /opsx:new + /opsx:ff
 ```
 
+After AI review, run `/recap` (explanation + Mermaid diagram) and then use `simplify` or `laravel-simplifier` for the refactor step before `/opsx:sync`.
+
 ### Resulting History on main
 
 ```
@@ -763,7 +765,8 @@ Recommended baseline:
       "Bash(composer test*)",
       "Bash(composer install*)",
       "Bash(openspec*)",
-      "Bash(npx openspec*)"
+      "Bash(npx openspec*)",
+      "Bash(npx @fission-ai/openspec*)"
     ]
   }
 }
@@ -885,19 +888,54 @@ Reference: [Safety Nets for Claude Code](https://cbox.dk/blog/safety-nets-for-cl
 
 ## 17. Optional: openspec/ROADMAP.md
 
-> **TBD — will be expanded in the next iteration** together with the Brainstorm / Align / Recap / Refactor framework. The pattern below is a placeholder based on earlier convention.
+For projects with multiple planned changes, create `openspec/ROADMAP.md` to list them in implementation order. This is typically the output of the Brainstorm + Align (grill-me) product-level phase.
 
-For projects with multiple planned changes, create `openspec/ROADMAP.md` to list them in implementation order. Each entry gets a short description and the files it will create or modify.
+```markdown
+# Roadmap
 
-Reference: `op-cards-php/openspec/ROADMAP.md`
+Planned changes in implementation order. Each entry is one OpenSpec change.
+
+## Change 1: `<change-name>`
+
+<one-paragraph description: what this change builds, why>
+
+**New files:**
+- `<path>` — <purpose>
+
+**Modified files:**
+- `<path>` — <what changes>
+
+## Change 2: `<change-name>`
+
+...
+```
+
+Create it: after `/brainstorm` and `/grill-me`, do vertical slicing manually — map the product vision to a list of OpenSpec changes. Keep each change to 2 hours or less (max 15 tasks). Copy `openspec/AGENT_MISSION.md.example` to `openspec/AGENT_MISSION.md` if you want autonomous runs.
 
 ## 18. Optional: openspec/AGENT_MISSION.md
 
-> **TBD — will be expanded in the next iteration** together with the Brainstorm / Align / Recap / Refactor framework. The flow below is based on earlier convention and does not yet include `sync`, `recap`, or `refactor` steps.
+For projects with a roadmap, `AGENT_MISSION.md` instructs a Claude Code agent to work through the entire roadmap autonomously — one change at a time — without per-change checkpoints. A copy-paste template is included at `openspec/AGENT_MISSION.md.example`.
 
-For projects with a roadmap, `openspec/AGENT_MISSION.md` provides instructions that enable a Claude Code agent to autonomously work through the entire roadmap — one change at a time. The updated flow (post Brainstorm/Align iteration) will be: `explore → new → continue → apply → verify → ai-review → recap → refactor → sync → archive`.
+### Flow per Change (autonomous mode)
 
-Reference: `op-cards-php/openspec/AGENT_MISSION.md`
+```
+explore (optional) → new → continue (loop) → apply → verify
+→ ai-review → recap → refactor → sync → archive → PR → merge
+```
+
+### Two Modes
+
+**Interactive mode** (normal conversation): CHECKPOINTs are active — agent pauses at each gate.
+
+| Gate | What the agent presents |
+|------|------------------------|
+| After artifacts | Proposal summary — proceed to implement? |
+| After review | Change summary + manual review instructions — proceed to sync/archive? |
+| After recap | Diagram + explanation — developer confirms understanding |
+
+**Autonomous mode** (AGENT_MISSION active): Per-change checkpoints are skipped. The agent works through the entire roadmap. A mandatory stop is produced at the end with a full session summary table and optional PR.
+
+See `openspec/AGENT_MISSION.md.example` for the complete template.
 
 ---
 

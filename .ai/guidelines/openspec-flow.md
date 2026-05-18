@@ -1,6 +1,20 @@
 ## Git + OpenSpec Feature Branch Flow
 
-> **Note:** Product-level phases (Brainstorm, Align, Roadmap) and post-review steps (Recap, Refactor) will be added in a future change — TBD.
+## Product Level (before any change)
+
+Before starting the first OpenSpec change on a new product or roadmap block, run the product-level phase:
+
+```
+/brainstorm         # divergent ideation → product briefing document
+/grill-me           # align phase: AI interviews you one question at a time → shared-understanding document
+[manual step]       # vertical slicing: break the vision into OpenSpec changes → openspec/ROADMAP.md
+```
+
+Checkpoints:
+- **After brainstorm**: Share the product briefing. Does the scope make sense? Proceed to grill-me?
+- **After grill-me**: Share the shared-understanding summary. Are decisions aligned? Proceed to roadmap?
+
+These steps are optional but recommended when starting a new product increment. For small, well-understood changes you can skip directly to `/opsx:new`.
 
 **Rule:** Every new feature or major change ALWAYS starts in the OpenSpec flow on its own `feat/<change-name>` branch — never implement directly, not even in plan mode.
 
@@ -71,7 +85,18 @@ git add openspec/ && git commit -m "docs(<change-name>): add proposal, design an
 #     - How to review manually (git diff, which pages/endpoints to test)
 #   → Wait for user OK before proceeding
 
-# 7. Sync specs
+# 7. Recap
+# /recap — AI explains: how it works, step-by-step flow, Mermaid diagram (mandatory)
+# → Developer confirms understanding before proceeding
+
+# 8. Refactor
+# Use /simplify skill or laravel-simplifier agent with this checklist:
+#   - "What is the smallest safe change that makes this codebase better?"
+#   - "Can a new developer follow the flow without mental jumps?"
+#   - "Which refactoring steps preserve behavior but improve structure?"
+# → Commit(s): "refactor(<change-name>): <specific improvement>"
+
+# 9. Sync specs
 # /opsx:sync — merges delta specs into main specs
 git add openspec/ && git commit -m "docs(<change-name>): sync specs"
 
@@ -112,6 +137,7 @@ Both lead to the same doc commit. Then continue with step 4 (apply) above.
 |\
 | * docs(list-packs): archive change
 | * docs(list-packs): sync specs
+| * refactor(list-packs): simplify response transformation
 | * refactor(list-packs): apply review feedback
 | * feat(list-packs): add packs() and pack() endpoints
 | * docs(list-packs): add proposal, design and tasks
@@ -121,6 +147,6 @@ Both lead to the same doc commit. Then continue with step 4 (apply) above.
 
 Use `git log --first-parent main` to see only the merge commits (one per change).
 
-Each feature follows: Explore → New → Continue → Implement → Verify → Review → Sync → Archive → PR → Merge.
+Each feature follows: Explore → New → Continue → Implement → Verify → Review → Recap → Refactor → Sync → Archive → PR → Merge.
 Use the change name as commit scope for every commit on that branch.
 Multiple commits per phase are fine — commit as often as makes sense (feat, fix, test, refactor, etc.).
