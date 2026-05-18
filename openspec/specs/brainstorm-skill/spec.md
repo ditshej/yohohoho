@@ -13,9 +13,16 @@ The system SHALL provide a `/brainstorm` slash command and Claude Code skill tha
 
 #### Scenario: Output product briefing document
 - **WHEN** the brainstorm session reaches a natural conclusion
-- **THEN** AI produces a product briefing MD file (stored as `docs/brainstorm-<topic>.md` or shown inline) summarizing: the problem, the vision, the constraints, and a rough list of capabilities to build
+- **THEN** AI writes the product briefing to `openspec/product/<topic>/briefing.md` AND shows it inline, containing: the problem, the vision, the constraints, a rough list of capabilities, and open questions
 
 #### Scenario: Bridge to OpenSpec
 - **WHEN** the brainstorm output is ready
-- **THEN** AI suggests the next step: "Use this briefing to create a ROADMAP, then start `/opsx:new` for each change"
+- **THEN** AI suggests: "Run `/grill-me` to align on decisions, or create `openspec/ROADMAP.md` with these capabilities and start `/opsx:new <name>`"
+
+### Requirement: Brainstorm Skill uses Opus model
+The `/brainstorm` slash command SHALL be pinned to the Opus model via `model: opus` in its YAML frontmatter, ensuring maximum reasoning quality for product ideation.
+
+#### Scenario: Model is pinned in command frontmatter
+- **WHEN** the `.claude/commands/brainstorm.md` file is inspected
+- **THEN** the YAML frontmatter contains `model: opus`
 
