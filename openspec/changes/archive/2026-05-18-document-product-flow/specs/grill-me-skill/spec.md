@@ -1,9 +1,5 @@
-# grill-me-skill Specification
+## MODIFIED Requirements
 
-## Purpose
-
-Defines the `/grill-me` slash command and skill for the Align phase. The skill interviews the developer one question at a time to reach shared understanding of a plan or design. It reads `openspec/product/<topic>/briefing.md` if present and persists the session output to `openspec/product/<topic>/aligned.md`.
-## Requirements
 ### Requirement: Grill-me Skill
 The system SHALL provide a `/grill-me` slash command and Claude Code skill for the Align phase. The AI MUST interview the developer one question at a time to achieve shared understanding of a plan or design.
 
@@ -27,10 +23,11 @@ The system SHALL provide a `/grill-me` slash command and Claude Code skill for t
 - **WHEN** the grill-me session is complete
 - **THEN** AI suggests: "Ready to create the change. Run `/opsx:new <name>` to start."
 
+## ADDED Requirements
+
 ### Requirement: Grill-me Skill uses Opus model
 The `/grill-me` slash command SHALL be pinned to the Opus model via `model: opus` in its YAML frontmatter.
 
 #### Scenario: Model is pinned in command frontmatter
 - **WHEN** the `.claude/commands/grill-me.md` file is inspected
 - **THEN** the YAML frontmatter contains `model: opus`
-

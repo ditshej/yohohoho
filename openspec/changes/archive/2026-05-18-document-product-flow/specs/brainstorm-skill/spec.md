@@ -1,9 +1,5 @@
-# brainstorm-skill Specification
+## MODIFIED Requirements
 
-## Purpose
-
-Defines the `/brainstorm` slash command and skill for product-level ideation before any OpenSpec change is started. The skill facilitates divergent → convergent thinking and persists the output to `openspec/product/<topic>/briefing.md` so it survives context resets and is readable by subsequent product-level phases.
-## Requirements
 ### Requirement: Brainstorm Skill
 The system SHALL provide a `/brainstorm` slash command and Claude Code skill that facilitates open-ended product ideation before any OpenSpec change is started.
 
@@ -19,10 +15,11 @@ The system SHALL provide a `/brainstorm` slash command and Claude Code skill tha
 - **WHEN** the brainstorm output is ready
 - **THEN** AI suggests: "Run `/grill-me` to align on decisions, or create `openspec/ROADMAP.md` with these capabilities and start `/opsx:new <name>`"
 
+## ADDED Requirements
+
 ### Requirement: Brainstorm Skill uses Opus model
 The `/brainstorm` slash command SHALL be pinned to the Opus model via `model: opus` in its YAML frontmatter, ensuring maximum reasoning quality for product ideation.
 
 #### Scenario: Model is pinned in command frontmatter
 - **WHEN** the `.claude/commands/brainstorm.md` file is inspected
 - **THEN** the YAML frontmatter contains `model: opus`
-

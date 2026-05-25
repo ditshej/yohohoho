@@ -318,6 +318,9 @@ This creates:
 
 > **CLI Note:** OpenSpec should be added as a dev-dependency in `package.json` (not global). Skills and commands may show `openspec ...` — always run as `npx openspec ...`. See Section 10 for the `composer.json` setup script pattern.
 
+> **Known Post-Update Patches:** After running `npx openspec update --force`, re-apply these local patches that `openspec update` overwrites:
+> - `.claude/commands/opsx/explore.md` — add `model: opus` to YAML frontmatter (thinking command, should use Opus 4.7)
+
 Fill `openspec/config.yaml` with project context:
 
 ```yaml

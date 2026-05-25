@@ -3,6 +3,7 @@ name: "Recap"
 description: Explain what was just built — how it works, the flow, and a Mermaid diagram (post-review step)
 category: Workflow
 tags: [workflow, recap, understanding]
+model: opus
 ---
 
 Activate the `recap` skill to generate a structured explanation of the implemented feature.
