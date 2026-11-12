@@ -15,6 +15,7 @@
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
+        "larastan/larastan": "^3.15",
         "laravel/boost": "^2.0",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.24",
@@ -44,7 +45,6 @@
             "@php artisan migrate --force",
             "npm install",
             "npm run build",
-            "git config core.hooksPath .githooks",
             "@php artisan boost:update --ansi"
         ],
         "dev": [
@@ -55,13 +55,17 @@
             "@php artisan config:clear --ansi",
             "@php artisan test"
         ],
+        "post-install-cmd": [
+            "@php -r \"if (file_exists('.git')) { exec('git config core.hooksPath .githooks/base'); }\""
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
         ],
         "post-update-cmd": [
+            "@php -r \"if (file_exists('.git')) { exec('git config core.hooksPath .githooks/base'); }\"",
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
-            "@php artisan boost:update --ansi"
+            "@php -r \"if (getenv('PAPERCLIP_RUN_ID') === false) { echo 'boost:update skipped outside Paperclip; run php artisan boost:update by hand if you need it.', PHP_EOL; exit(0); } passthru(escapeshellarg(PHP_BINARY) . ' artisan boost:update --ansi', \\$exitCode); exit(\\$exitCode);\""
         ],
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
