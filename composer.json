@@ -45,7 +45,7 @@
             "@php artisan migrate --force",
             "npm install",
             "npm run build",
-            "@php artisan boost:update --ansi"
+            "@php -r \"if (getenv('PAPERCLIP_RUN_ID') === false) { echo 'boost:update skipped outside Paperclip; run php artisan boost:update by hand if you need it.', PHP_EOL; exit(0); } passthru(escapeshellarg(PHP_BINARY) . ' artisan boost:update --ansi', \\$exitCode); exit(\\$exitCode);\""
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
