@@ -26,7 +26,4 @@ Thumbs.db
 /.playwright-mcp
 .env.deploy
 .claude/worktrees/
-CLAUDE.md
 AGENTS.md
-.mcp.json
-boost.json
