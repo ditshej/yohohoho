@@ -1,4 +1,4 @@
-# rig-enforcement base 2 (CI template for Laravel)
+# rig-enforcement base 5 (CI template for Laravel)
 name: CI
 
 on:
@@ -30,14 +30,16 @@ jobs:
         run: npm ci && npm run build
       - name: Prepare app
         run: |
-          touch database/database.sqlite
           cp .env.example .env
+          touch database/database.sqlite
           php artisan key:generate
           php artisan migrate --force
       - name: Pint
         run: vendor/bin/pint --test
       - name: Larastan
         run: vendor/bin/phpstan analyse --no-progress --memory-limit=1G
+      - name: Prettier (when installed)
+        run: if [ -x node_modules/.bin/prettier ]; then node_modules/.bin/prettier --check .; fi
       - name: Pest with coverage
         run: vendor/bin/pest --coverage --min=70
 
@@ -45,12 +47,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+      - name: Lockfiles
+        run: |
+          status=0
+          if [ -f composer.json ] && [ ! -f composer.lock ]; then
+            echo "::error file=composer.json::composer.json without composer.lock. Commit the lockfile."
+            status=1
+          fi
+          if [ -f package.json ] && [ ! -f package-lock.json ]; then
+            echo "::error file=package.json::package.json without package-lock.json. Commit the lockfile."
+            status=1
+          fi
+          exit $status
       - uses: shivammathur/setup-php@v2
+        if: (success() || failure()) && hashFiles('composer.lock') != ''
         with:
           php-version: '8.4'
           coverage: none
           tools: composer:v2
       - name: composer audit
+        if: (success() || failure()) && hashFiles('composer.lock') != ''
         run: composer audit --locked
       - name: npm audit
         if: (success() || failure()) && hashFiles('package-lock.json') != ''
@@ -83,6 +99,13 @@ jobs:
             lines=$(cat .ai/guidelines/*.md 2>/dev/null | wc -l)
           elif [ -f CLAUDE.md ]; then
             lines=$(wc -l < CLAUDE.md)
+            # Follow @imports one level deep (files in the repository only).
+            for f in $(grep -oE '(^|[[:space:]])@[^[:space:]]+' CLAUDE.md | sed 's/^[[:space:]]*@//' | sort -u); do
+              case "$f" in /*|~*|*..*) continue ;; esac
+              if [ -f "$f" ]; then
+                lines=$((lines + $(wc -l < "$f")))
+              fi
+            done
           else
             exit 0
           fi
